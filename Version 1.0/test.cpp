@@ -1,9 +1,12 @@
 #include "TA.h"
+#include <ctime>
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
+    const clock_t begin_time = clock();
+
     try
     {
         tree_automaton A1(argv[1]);
@@ -21,6 +24,7 @@ int main(int argc, char **argv)
         cout << "Error: " << e << endl;
     }
 
+    std::cout << float( clock () - begin_time ) /  CLOCKS_PER_SEC;
 
     return 0;
 }
