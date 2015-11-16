@@ -9,7 +9,7 @@ States q1002:0 q1001:0 q1000:0 q999:0 q998:0 q997:0 q996:0 q995:0 q994:0 q993:0 
 
 Final States q1000 
 
-Transitions
+Transitions 
 bot0 -> q1002
 bot2(q1002,q1002) -> q1002
 bot2(q1002,q1002) -> q999
@@ -21312,7 +21312,6 @@ rootxblack(q3,q4) -> q2
 rootxblack(q0,q4) -> q2
 rootxblack(q3,q1) -> q2
 rootxblack(q0,q1) -> q2
-
 
 
 

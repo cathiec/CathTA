@@ -176,15 +176,8 @@ public:
                 if(s != "Transitions")
                 {
                     state temp(s);
-                    if(!Q.contain(temp))
-                    {
-                        throw 6; ///final state is not contained in Q
-                    }
-                    else
-                    {
-                        F.add(temp);
-                        nb_final_states++;
-                    }
+                    F.add(temp);
+                    nb_final_states++;
                 }
                 else
                 {
@@ -194,8 +187,9 @@ public:
             }
             //transitions
             if(!has_transitions)
-                throw 7; ///no transition
+                throw 6; ///no transition
             int nb_transitions = 0;
+            file.get();
             while(getline(file, s))
             {
                 if(s.length() > 0)
@@ -208,7 +202,7 @@ public:
         }
         else
         {
-            throw 8; ///no such file
+            throw 7; ///no such file
         }
     }
 

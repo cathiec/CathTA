@@ -9,7 +9,7 @@ States q53:0 q52:0 q51:0 q50:0 q49:0 q48:0 q47:0 q46:0 q45:0 q44:0 q43:0 q42:0 q
 
 Final States q40 q20 
 
-Transitions
+Transitions 
 xyNULL(q0,q1) -> q12
 xyNULL(q15,q16) -> q17
 xxpxppyNULL(q18,q16) -> q17
@@ -251,7 +251,6 @@ black(q53,q51) -> q52
 black(q53,q51) -> q53
 UNDEF(q31,q28) -> q41
 UNDEF(q36,q35) -> q38
-
 
 
 

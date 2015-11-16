@@ -9,7 +9,7 @@ States q52:0 q51:0 q50:0 q49:0 q48:0 q47:0 q46:0 q45:0 q44:0 q43:0 q42:0 q41:0 q
 
 Final States q47 q5 
 
-Transitions
+Transitions 
 yblack(q1,q19) -> q22
 yblack(q9,q9) -> q18
 yblack(q11,q9) -> q18
@@ -169,7 +169,6 @@ black(q51,q35) -> q51
 black(q51,q45) -> q51
 UNDEF(q28,q50) -> q49
 UNDEF(q42,q41) -> q44
-
 
 
 

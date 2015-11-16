@@ -9,7 +9,7 @@ States q86:0 q85:0 q84:0 q83:0 q82:0 q81:0 q80:0 q79:0 q78:0 q77:0 q76:0 q75:0 q
 
 Final States q84 
 
-Transitions
+Transitions 
 xpxppyNULL(q12,q83) -> q85
 rootxred(q0,q1) -> q12
 rootxred(q0,q23) -> q12
@@ -1025,7 +1025,6 @@ black(q78,q45) -> q78
 black(q83,q83) -> q34
 black(q83,q83) -> q45
 UNDEF(q85,q83) -> q82
-
 
 
 

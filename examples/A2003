@@ -9,7 +9,7 @@ States q2002:0 q2001:0 q2000:0 q1999:0 q1998:0 q1997:0 q1996:0 q1995:0 q1994:0 q
 
 Final States q1973 
 
-Transitions
+Transitions 
 bot0 -> q2002
 bot2(q2002,q2002) -> q1872
 bot2(q2002,q2002) -> q1972
@@ -30424,7 +30424,6 @@ rootblack(q4,q7) -> q6
 rootblack(q4,q5) -> q6
 rootblack(q3,q1) -> q2
 rootblack(q0,q1) -> q2
-
 
 
 
