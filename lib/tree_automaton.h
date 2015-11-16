@@ -72,7 +72,6 @@ public:
 
     //ranked alphabet
     set<symbol> SIGMA;
-    int max_rank;
 
     //finite set of states
     set<state> Q;
@@ -88,13 +87,11 @@ public:
     //constructor
 
     tree_automaton()
-    :max_rank(0)
     {}
 
     tree_automaton(std::string f)
     {
         std::ifstream file(f);
-        max_rank = 0;
         if(file.is_open())
         {
             std::string s;
@@ -117,8 +114,6 @@ public:
                     std::string symbol_name = s.substr(0, pos_mid);
                     int symbol_rank = atoi(s.substr(pos_mid + 1).c_str());
                     SIGMA.add(symbol(symbol_name, symbol_rank));
-                    if(symbol_rank > max_rank)
-                        max_rank = symbol_rank;
                     nb_symbols++;
                 }
                 else
@@ -270,7 +265,6 @@ public:
         result._name += " and ";
         result._name += B._name;
         result.SIGMA = SIGMA;
-        result.max_rank = max_rank;
         tree_automaton _B = B.rename();
         result.Q = Q;
         result.Q.add(_B.Q);
@@ -290,7 +284,6 @@ public:
         result._name += " and ";
         result._name += B._name;
         result.SIGMA = SIGMA;
-        result.max_rank = max_rank;
         result.Q = Q * B.Q;
         result.F = F * B.F;
         result.DELTA = cross_product_transitions(DELTA, B.DELTA);
@@ -733,11 +726,8 @@ public:
     {
         for(int i = 0; i <= 10; i++)
         {
-            std::cout << i << std::endl;
             if(inclusion_check(i, *this))
-            {
                 return i;
-            }
         }
         return -1;
     }
