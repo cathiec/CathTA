@@ -78,9 +78,9 @@ public:
         }
     }
 
-    void add(const T & e)
+    void add(const T & e, bool force = false)
     {
-        if(!contain(e))
+        if(force == true || !contain(e))
         {
             T * temp = new T[_size + 1];
             for(int i = 0; i < _size; i ++)

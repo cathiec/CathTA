@@ -113,7 +113,7 @@ public:
                     int pos_mid = s.find(':');
                     std::string symbol_name = s.substr(0, pos_mid);
                     int symbol_rank = atoi(s.substr(pos_mid + 1).c_str());
-                    SIGMA.add(symbol(symbol_name, symbol_rank));
+                    SIGMA.add(symbol(symbol_name, symbol_rank), true);
                     nb_symbols++;
                 }
                 else
@@ -150,7 +150,7 @@ public:
                     int state_rank = atoi(s.substr(pos_mid + 1).c_str());
                     if(state_rank != 0)
                         throw 4; ///state has a rank > 0
-                    Q.add(state(state_name));
+                    Q.add(state(state_name), true);
                     nb_states++;
                 }
                 else
@@ -176,7 +176,7 @@ public:
                 if(s != "Transitions")
                 {
                     state temp(s);
-                    F.add(temp);
+                    F.add(temp, true);
                     nb_final_states++;
                 }
                 else
@@ -195,7 +195,7 @@ public:
                 if(s.length() > 0)
                 {
                     transition temp(s);
-                    DELTA.add(temp);
+                    DELTA.add(temp, true);
                     nb_transitions++;
                 }
             }
