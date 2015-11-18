@@ -2,30 +2,33 @@
 #define container_h
 
 #include "dimension.h"
+#define ALLOCATION_INCREMENT 200
+#define __container container
 
 template<typename T>
 class container
 {
 
-private:
+public:
 
     T * _data;          /* data */
     int _size;          /* size */
+    int _real_size;     /* real size allocated */
     dim _dimension;     /* dimension (used for dimension-bounded inclusion checking) */
 
 public:
 
     /// default constructor
     container()
-    :_data(NULL), _size(0)
+    :_data(NULL), _size(0), _real_size(0)
     {}
 
     /// constructor by reference copying
     /* create a new container by copying another container "c" */
     container(const container<T> & c)
-    :_size(c._size), _dimension(c._dimension)
+    :_size(c._size), _real_size(c._size + ALLOCATION_INCREMENT), _dimension(c._dimension)
     {
-        _data = new T[_size];
+        _data = new T[_size + ALLOCATION_INCREMENT];
         for(int i = 0; i < _size; i++)
             _data[i] = c._data[i];
     }
@@ -45,7 +48,7 @@ public:
     }
 
     /// element inclusion
-    /* check if a element "e" is in the current container */
+    /* check if an element "e" is in the current container */
     bool contain(const T & e) const
     {
         for(int i = 0; i < _size; i++)
@@ -72,13 +75,22 @@ public:
     {
         if(f || (!contain(e)))
         {
-            T * temp = new T[_size + 1];
-            for(int i = 0; i < _size; i++)
-                temp[i] = _data[i];
-            temp[_size] = e;
-            delete[] _data;
-            _data = temp;
-            _size++;
+            if(_size + 1 > _real_size)
+            {
+                T * temp = new T[_size + ALLOCATION_INCREMENT];
+                for(int i = 0; i < _size; i++)
+                    temp[i] = _data[i];
+                temp[_size] = e;
+                delete[] _data;
+                _data = temp;
+                _real_size = _size + ALLOCATION_INCREMENT;
+                _size++;
+            }
+            else
+            {
+                _data[_size] = e;
+                _size++;
+            }
         }
     }
 
@@ -93,9 +105,9 @@ public:
     }
 
     /// element deletion
-    /* remove an element "e" from the current container if it is already in */
-    /* if "e" appears several times in the current container, then just remove the first occurrence */
-    void remove(const T & e)
+    /* delete an element "e" from the current container if it is already in */
+    /* if "e" appears several times in the current container, then just delete the first occurrence */
+    void del(const T & e)
     {
         if(contain(e))
         {
@@ -153,12 +165,23 @@ public:
     container<T> & operator=(const container<T> & c)
     {
         delete[] _data;
-        _data = new T[c._size];
+        _data = new T[c._size + ALLOCATION_INCREMENT];
         for(int i = 0; i < c._size; i++)
             _data[i] = c._data[i];
         _size = c._size;
+        _real_size = _size + ALLOCATION_INCREMENT;
         _dimension = c._dimension;
         return *this;
+    }
+
+    /// compute the product of 2 containers
+    container<T> operator*(const container<T> & s) const
+    {
+        container<T> result;
+        for(int i = 1; i <= _size; i++)
+            for(int j = 1; j <= s.size(); j++)
+                result.add(_data[i - 1] * s[j]);
+        return result;
     }
 
 };

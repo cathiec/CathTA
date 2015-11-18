@@ -8,10 +8,10 @@
 class dim
 {
 
-private:
+public:
 
-    int _data[max_dimension + 1];    /* data */
-    int _size;      /* size */
+    int _data[max_dimension + 1];   /* data */
+    int _size;                      /* size */
 
 public:
 
@@ -82,6 +82,38 @@ public:
     {
         _data[_size] = e;
         _size++;
+    }
+
+    /// element inclusion
+    /* check if an element "e" is in the current dimension */
+    bool contain(int e) const
+    {
+        for(int i = 0; i < _size; i++)
+            if(e == _data[i])
+                return true;
+        return false;
+    }
+
+    /// equation
+    /* check if all a dimension "d" is equal to the current dimension */
+    /* 2 dimensions are equal if and only if they contain exactly the same elements */
+    bool operator==(const dim & d) const
+    {
+        for(int i = 1; i <= d._size; i++)
+            if(!contain(d[i]))
+                return false;
+        for(int i = 0; i < _size; i++)
+            if(!d.contain(_data[i]))
+                return false;
+        return true;
+    }
+
+    /// non equation
+    /* check if all a dimension "d" is not equal to the current dimension */
+    /* 2 dimensions are equal if and only if they contain exactly the same elements */
+    bool operator!=(const dim & d) const
+    {
+        return !(*this == d);
     }
 
 };

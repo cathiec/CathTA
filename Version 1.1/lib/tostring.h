@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "container.h"
+#include "tree_automaton.h"
 
 bool cath_show_dimension = false;
 
@@ -82,6 +82,66 @@ std::string to_string(const container<T> & c)
         result += "#";
         result += to_string(c.dimension());
     }
+    return result;
+}
+
+/// state -> std::string
+std::string to_string(const state & s)
+{
+    return s._name;
+}
+
+/// symbol -> std::string
+std::string to_string(const symbol & s)
+{
+    std::string result = s._name;
+    if(s._rank != 0)
+    {
+        result += "(";
+        for(int i = 2; i <= s._rank; i++)
+            result += " ,";
+        result += " )";
+    }
+    return result;
+}
+
+/// product_state -> std::string
+std::string to_string(const product_state & ps)
+{
+    std::string result = "(";
+    result += to_string(ps._1);
+    result += ",{";
+    if(ps._2.size() == 0)
+    {
+        result += "})";
+        return result;
+    }
+    for(int i = 1; i <= ps._2.size(); i++)
+    {
+        result += to_string(ps._2[i]);
+        result += ",";
+    }
+    result += "\b})";
+    return result;
+}
+
+/// transition -> std::string
+std::string to_string(const transition & t)
+{
+    std::string result = t._alpha._name;
+    if(t._alpha._rank != 0)
+    {
+        result += "(";
+        result += to_string(t._input[1]);
+        for(int i = 2; i <= t._alpha._rank; i++)
+        {
+            result += ",";
+            result += to_string(t._input[i]);
+        }
+        result += ")";
+    }
+    result += " -> ";
+    result += to_string(t._output);
     return result;
 }
 
