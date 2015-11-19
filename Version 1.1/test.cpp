@@ -4,28 +4,22 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    SHOW_DIMENSION;
+    ofstream file("result.cath", ios::app);
     const clock_t begin_time = clock();
 
     try
     {
-        tree_automaton A1("examples/A6");
-        cout << 1 << endl;
-        /*tree_automaton A2("examples/A0117");
-        cout << 2 << endl;
-        tree_automaton A1UA2 = A1.U(A2);
-        cout << 3 << endl;*/
-        if(A1.is_included_in(A1, 10))
-            cout << "YES" << endl;
-        else
-            cout << "NO" << endl;
+        tree_automaton A1(argv[1]);
+        file << argv[1] << " max dimension:\t" << A1.upper_bound_dimension();
     }
     catch(int e)
     {
-        cout << "Error: " << e << endl;
+        file << "Error: " << e << endl;
     }
 
-    cout << "\tTime Used: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    file << "\tTime Used: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    file.close();
+
 
     return 0;
 }

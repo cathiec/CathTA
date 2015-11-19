@@ -8,13 +8,11 @@ int main(int argc, char **argv)
 
     try
     {
-        tree_automaton A1("examples/A7");
-        /*cout << 1 << endl;
-        tree_automaton A2("examples/A0054");
-        cout << 2 << endl;
-        tree_automaton A1UA2 = A1.U(A2);
-        cout << 3 << endl;*/
-        if(A1.is_included_in(A1, 1000))
+        tree_automaton A1("examples/A0246");
+        cout << 1 << endl;
+        /*tree_automaton A2("examples/A0177");
+        cout << 2 << endl;*/
+        if(A1.is_included_in(A1, 5))
             cout << "YES" << endl;
         else
             cout << "NO" << endl;

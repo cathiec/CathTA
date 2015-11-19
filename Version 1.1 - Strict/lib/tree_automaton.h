@@ -551,10 +551,10 @@ public:
                         container<state> Q = qQ._2;
                         if(q == p && P.contain(Q) && (P._dimension == Q._dimension || Q.size() == 0))
                         {
-                            std::cout << P << std::endl;
+                            /*std::cout << P << std::endl;
                             std::cout << P._dimension << std::endl;
                             std::cout << Q << std::endl;
-                            std::cout << Q._dimension << std::endl;
+                            std::cout << Q._dimension << std::endl;*/
                             exist = true;
                             break;
                         }
@@ -568,10 +568,10 @@ public:
                         container<state> Q = qQ._2;
                         if(q == p && P.contain(Q) && (P._dimension == Q._dimension || Q.size() == 0))
                         {
-                            std::cout << P << std::endl;
+                            /*std::cout << P << std::endl;
                             std::cout << P._dimension << std::endl;
                             std::cout << Q << std::endl;
-                            std::cout << Q._dimension << std::endl;
+                            std::cout << Q._dimension << std::endl;*/
                             exist = true;
                             break;
                         }

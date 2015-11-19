@@ -2,7 +2,7 @@
 #define container_h
 
 #include "dimension.h"
-#define ALLOCATION_INCREMENT 10
+#define ALLOCATION_INCREMENT 50
 #define __container container
 
 template<typename T>
