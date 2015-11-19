@@ -489,6 +489,7 @@ public:
         while(Next.size() > 0)
         {
             product_state rR = Next[1];
+            std::cout << rR << std::endl;
             Next.remove(rR);
             Processed.add(rR);
             set<product_state> rR_post = post(rR, Processed, B);
@@ -704,7 +705,7 @@ public:
                             if(q == p && Q.contain(P) && P._dimension <= Q._dimension)
                             {
                                 //std::cout << "REMOVE " << Q._dimension << " " << qQ << std::endl;
-                                Processed.remove(qQ);
+                                Next.remove(qQ);
                             }
                         }
                         //std::cout << "ADD " << P._dimension << " " << pP << std::endl;

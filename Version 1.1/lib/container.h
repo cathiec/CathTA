@@ -2,7 +2,7 @@
 #define container_h
 
 #include "dimension.h"
-#define ALLOCATION_INCREMENT 200
+#define ALLOCATION_INCREMENT 10
 #define __container container
 
 template<typename T>
@@ -26,9 +26,9 @@ public:
     /// constructor by reference copying
     /* create a new container by copying another container "c" */
     container(const container<T> & c)
-    :_size(c._size), _real_size(c._size + ALLOCATION_INCREMENT), _dimension(c._dimension)
+    :_size(c._size), _real_size(c._size), _dimension(c._dimension)
     {
-        _data = new T[_size + ALLOCATION_INCREMENT];
+        _data = new T[_size];
         for(int i = 0; i < _size; i++)
             _data[i] = c._data[i];
     }
@@ -65,6 +65,17 @@ public:
             if(!contain(c[i]))
                 return false;
         return true;
+    }
+
+    /// common dimension
+    /* compute the common dimensions between the current container and a container "c" */
+    container<int> common_dimensions(const container<T> & c) const
+    {
+        container<int> result;
+        for(int i = 1; i <= _dimension._size; i++)
+            if(c._dimension.contain(_dimension[i]))
+                result.add(_dimension[i]);
+        return result;
     }
 
     /// element insertion
@@ -130,7 +141,7 @@ public:
     /* dimension does not make any sense in equation */
     bool operator==(const container<T> & c) const
     {
-        return (contain(c) && c.contain(*this));
+        return (contain(c) && c.contain(*this) && _dimension == c._dimension);
     }
 
     /// non equation
@@ -140,12 +151,6 @@ public:
     bool operator!=(const container<T> & c) const
     {
         return !(*this == c);
-    }
-
-    /// get size
-    int size() const
-    {
-        return _size;
     }
 
     /// get dimension
@@ -165,11 +170,11 @@ public:
     container<T> & operator=(const container<T> & c)
     {
         delete[] _data;
-        _data = new T[c._size + ALLOCATION_INCREMENT];
+        _data = new T[c._size];
         for(int i = 0; i < c._size; i++)
             _data[i] = c._data[i];
         _size = c._size;
-        _real_size = _size + ALLOCATION_INCREMENT;
+        _real_size = _size;
         _dimension = c._dimension;
         return *this;
     }
@@ -179,11 +184,61 @@ public:
     {
         container<T> result;
         for(int i = 1; i <= _size; i++)
-            for(int j = 1; j <= s.size(); j++)
+            for(int j = 1; j <= s._size; j++)
                 result.add(_data[i - 1] * s[j]);
         return result;
     }
 
+    /// occurrences of elements
+    /* compute the occurrences of a given element "e" in the current container */
+    container<int> occurrences(const T & s) const
+    {
+        container<int> result;
+        for(int i = 0; i < _size; i++)
+            if(_data[i] == s)
+                result.add(i);
+        return result;
+    }
+
 };
+
+/* check if 2 elements' occurrences have any same index */
+bool occurrences_have_same_index(const container<int> & o1, const container<int> & o2)
+{
+    for(int i = 1; i <= o1._size; i++)
+        if(o2.contain(o1[i]))
+            return true;
+    return false;
+}
+
+/// container -> std::string
+template<typename T>
+std::string to_string(const container<T> & c)
+{
+    std::string result = "{";
+    for(int i = 1; i <= c._size; i++)
+    {
+        result += to_string(c[i]);
+        result += ",";
+    }
+    if(c._size != 0)
+        result += "\b";
+    result += "}";
+    if(cath_show_dimension)
+    {
+        result += "#";
+        result += to_string(c.dimension());
+    }
+    return result;
+}
+
+/// print a container
+/* print a container by std::cout */
+template<typename T>
+std::ostream & operator<<(std::ostream & out, const container<T> & c)
+{
+    out << to_string(c);
+    return out;
+}
 
 #endif

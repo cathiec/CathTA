@@ -5,6 +5,8 @@
 
 #define max_dimension 10
 
+#include "tostring.h"
+
 class dim
 {
 
@@ -50,30 +52,24 @@ public:
         return _data[i - 1];
     }
 
-    /// get size
-    int size() const
-    {
-        return _size;
-    }
-
     /// upper bound
     int upper() const
     {
-        int max = -1;
+        int _max = -1;
         for(int i = 0; i < _size; i++)
-            if(max < _data[i])
-                max = _data[i];
-        return max;
+            if(_max < _data[i])
+                _max = _data[i];
+        return _max;
     }
 
     /// lower bound
     int lower() const
     {
-        int min = 999;
+        int _min = 999;
         for(int i = 0; i < _size; i++)
-            if(min > _data[i])
-                min = _data[i];
-        return min;
+            if(_min > _data[i])
+                _min = _data[i];
+        return _min;
     }
 
     /// element insertion
@@ -82,6 +78,25 @@ public:
     {
         _data[_size] = e;
         _size++;
+    }
+
+    /// element deletion
+    /* delete an element "e" from the current dimension if it is already in */
+    void del(const int & e)
+    {
+        if(contain(e))
+        {
+            int j;
+            for(int i = 0; i < _size; i++)
+                if(_data[i] == e)
+                {
+                    j = i;
+                    break;
+                }
+            for(int i = j; i < _size - 1; i++)
+                _data[i] = _data[i + 1];
+            _size--;
+        }
     }
 
     /// element inclusion
@@ -117,5 +132,43 @@ public:
     }
 
 };
+
+/// dim -> std::string
+std::string to_string(const dim & d)
+{
+    std::string result = "";
+    if(d._size == 0)
+        return "{}";
+    if(d._size == d.upper() + 1)
+    {
+        result += "[";
+        result += to_string(d.upper());
+        result += "]";
+        return result;
+    }
+    if(d._size == 1)
+    {
+        result += "(";
+        result += to_string(d[1]);
+        result += ")";
+        return result;
+    }
+    result += "{";
+    for(int i = 1; i <= d._size; i++)
+    {
+        result += to_string(d[i]);
+        result += ",";
+    }
+    result += "\b}";
+    return result;
+}
+
+/// print a dimension
+/* print a dimension by std::cout */
+std::ostream & operator<<(std::ostream & out, const dim & d)
+{
+    out << to_string(d);
+    return out;
+}
 
 #endif

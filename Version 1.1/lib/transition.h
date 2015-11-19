@@ -100,9 +100,9 @@ public:
     friend container<transition> cross_product_transitions(const container<transition> & st1, const container<transition> & st2)
     {
         container<transition> result;
-        for(int i = 1; i <= st1.size(); i++)
+        for(int i = 1; i <= st1._size; i++)
         {
-            for(int j = 1; j <= st2.size(); j++)
+            for(int j = 1; j <= st2._size; j++)
             {
                 if(st1[i]._alpha == st2[j]._alpha)
                 {
@@ -119,5 +119,33 @@ public:
     }
 
 };
+
+/// transition -> std::string
+std::string to_string(const transition & t)
+{
+    std::string result = t._alpha._name;
+    if(t._alpha._rank != 0)
+    {
+        result += "(";
+        result += to_string(t._input[1]);
+        for(int i = 2; i <= t._alpha._rank; i++)
+        {
+            result += ",";
+            result += to_string(t._input[i]);
+        }
+        result += ")";
+    }
+    result += " -> ";
+    result += to_string(t._output);
+    return result;
+}
+
+/// print a transition
+/* print a transition by std::cout */
+std::ostream & operator<<(std::ostream & out, const transition & t)
+{
+    out << to_string(t);
+    return out;
+}
 
 #endif

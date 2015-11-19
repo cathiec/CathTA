@@ -4,15 +4,21 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+    SHOW_DIMENSION;
     const clock_t begin_time = clock();
 
     try
     {
-        tree_automaton A("examples/A2003");
-        cout << A.SIGMA.size() << endl;
-        cout << A.Q.size() << endl;
-        cout << A.F << endl;
-        cout << A.DELTA.size() << endl;
+        tree_automaton A1("examples/A6");
+        cout << 1 << endl;
+        /*tree_automaton A2("examples/A0117");
+        cout << 2 << endl;
+        tree_automaton A1UA2 = A1.U(A2);
+        cout << 3 << endl;*/
+        if(A1.is_included_in(A1, 10))
+            cout << "YES" << endl;
+        else
+            cout << "NO" << endl;
     }
     catch(int e)
     {

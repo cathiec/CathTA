@@ -60,4 +60,32 @@ public:
 
 };
 
+/// product_state -> std::string
+std::string to_string(const product_state & ps)
+{
+    std::string result = "(";
+    result += to_string(ps._1);
+    result += ",{";
+    if(ps._2._size == 0)
+    {
+        result += "})";
+        return result;
+    }
+    for(int i = 1; i <= ps._2._size; i++)
+    {
+        result += to_string(ps._2[i]);
+        result += ",";
+    }
+    result += "\b})";
+    return result;
+}
+
+/// print a product state
+/* print a product state by std::cout */
+std::ostream & operator<<(std::ostream & out, const product_state & ps)
+{
+    out << to_string(ps);
+    return out;
+}
+
 #endif
