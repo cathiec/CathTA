@@ -9,6 +9,8 @@
 
 #include "print.h"
 
+#define UPPER_BOUND_DIMENSION 7
+
 class tree_automaton
 {
 
@@ -706,7 +708,7 @@ public:
             Next.del(rR);
             Processed.add(rR);
             container<product_state> rR_post = post(rR, Processed, *this, bound);
-            if(bound > 5)
+            if(bound > UPPER_BOUND_DIMENSION)
                 return -1;
             for(int i = 1; i <= rR_post.size(); i++)
             {
