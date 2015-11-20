@@ -379,7 +379,7 @@ public:
         if(cb_qi.size() > 1)
         {
             box<state> next_recursion = cb_qi;
-            next_recursion.remove(next_recursion[next_recursion.size()]);
+            next_recursion._size--;
             state qn = cb_qi[cb_qi.size()];
             set<set<state> > possible_Pn = possible_Pi(qn, Processed);
             set<box<set<state> > > possible_combinations_first_n_minus_1_Pi = possible_combinations_Pi(next_recursion, Processed);

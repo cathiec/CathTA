@@ -2,7 +2,7 @@
 #define container_h
 
 #include "dimension.h"
-#define ALLOCATION_INCREMENT 50
+#define ALLOCATION_INCREMENT 200
 #define __container container
 
 template<typename T>
@@ -196,7 +196,7 @@ public:
         container<int> result;
         for(int i = 0; i < _size; i++)
             if(_data[i] == s)
-                result.add(i);
+                result.add(i + 1);
         return result;
     }
 

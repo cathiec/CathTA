@@ -33,7 +33,7 @@ public:
             }
         }
         int pos_left_par = s.find('(');
-        if(pos_left_par != -1)
+        if(pos_left_par != -1 && (s.find(')') - pos_left_par > 1))
         {
             _alpha._name = s.substr(0, pos_left_par);
             std::string temp = s.substr(pos_left_par + 1);

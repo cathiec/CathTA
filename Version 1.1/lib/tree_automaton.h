@@ -296,7 +296,7 @@ public:
         if(cb_qi._size > 1)
         {
             __container<state> next_recursion = cb_qi;
-            next_recursion.del(next_recursion[next_recursion._size]);
+            next_recursion._size--;
             state qn = cb_qi[cb_qi._size];
             container<container<state> > possible_Pn = possible_Pi(qn, Processed);
             container<__container<container<state> > > possible_combinations_P1_to_Pn_minus_1 = possible_combinations_Pi(next_recursion, Processed);
@@ -694,11 +694,14 @@ public:
             {
                 bool ok = true;
                 for(int j = 1; j <= s._rank; j++)
+                {
+                    //std::cout << cb[j] << std::endl;
                     if(!cb[j].contain(t._input[j]))
                     {
                         ok = false;
                         break;
                     }
+                }
                 if(ok)
                     result.add(t._output);
             }
@@ -717,9 +720,9 @@ public:
         state r = rR._1;
         container<state> R = rR._2;
         container<product_state> result;
-        container<state> q_Processed;
+        __container<state> q_Processed;
         for(int i = 1; i <= Processed._size; i++)
-            q_Processed.add(Processed[i]._1);
+            q_Processed.add(Processed[i]._1, true);
         for(int i = 1; i <= DELTA._size; i++)
         {
             transition t = DELTA[i];
@@ -746,33 +749,33 @@ public:
         for(int i = 1; i <= DELTA._size; i++)
             if(DELTA[i]._alpha._rank == 0)
             {
-                container<state> init_B = this->initial_states(DELTA[i]._alpha);
+                //std::cout << DELTA[i] << std::endl;
+                container<state> init_B = initial_states(DELTA[i]._alpha);
                 dim dim_init_B;
                 dim_init_B.add(0);
                 init_B.set_dimension(dim_init_B);
                 product_state temp(DELTA[i]._output, init_B);
                 /*if(accept(temp,*this))
-                    return false;*/
+                    return bound;*/
                 Next.add(temp);
             }
         while(Next._size > 0)
         {
             product_state rR = Next[1];
+            //std::cout << rR << std::endl;
             Next.del(rR);
             Processed.add(rR);
             container<product_state> rR_post = post(rR, Processed, *this, bound);
-            if(bound > 10)
+            //std::cout << Processed << std::endl;
+            if(bound > 5)
                 return -1;
             for(int i = 1; i <= rR_post._size; i++)
             {
                 product_state pP = rR_post[i];
                 state p = pP._1;
                 container<state> P = pP._2;
-                //std::cout << P._dimension << std::endl;
-                //if(P._dimension.upper() > k)
-                //std::cout << pP << std::endl;
                 /*if(accept(pP, *this))
-                    return false;*/
+                    return bound;*/
                 bool exist = false;
                 for(int j = 1; j <= Processed._size; j++)
                 {
@@ -844,11 +847,8 @@ public:
                             Next.del(Next[j]);
                             j--;
                         }
-
                     }
                 }
-                /*std::cout << pP << std::endl;
-                std::cout << pP._2._dimension << std::endl;*/
                 Next.add(pP);
             }
         }
