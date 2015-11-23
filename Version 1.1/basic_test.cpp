@@ -4,13 +4,13 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    //SHOW_DIMENSION;
+    SHOW_DIMENSION;
 
     const clock_t begin_time = clock();
 
     try
     {
-        tree_automaton A1("32843200/A32843200_139820680990360");
+        tree_automaton A1("xx");
         //cout << A1.DELTA << endl;
         cout << "max dimension:\t" << A1.upper_bound_dimension();
     }

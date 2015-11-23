@@ -9,7 +9,7 @@
 
 #include "print.h"
 
-#define UPPER_BOUND_DIMENSION 7
+#define UPPER_BOUND_DIMENSION 5
 
 class tree_automaton
 {
@@ -697,7 +697,6 @@ public:
                 bool ok = true;
                 for(int j = 1; j <= s._rank; j++)
                 {
-                    //std::cout << cb[j] << std::endl;
                     if(!cb[j].contain(t._input[j]))
                     {
                         ok = false;
@@ -851,6 +850,7 @@ public:
                         }
                     }
                 }
+                //std::cout << pP._2 << std::endl;
                 Next.add(pP);
             }
         }
