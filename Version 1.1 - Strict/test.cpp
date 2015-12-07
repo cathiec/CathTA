@@ -4,13 +4,13 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    ofstream file("result.cath", ios::app);
+    ofstream file(argv[2], ios::app);
     const clock_t begin_time = clock();
 
     try
     {
         tree_automaton A1(argv[1]);
-        file << argv[1] << " max dimension:\t" << A1.upper_bound_dimension();
+        file << argv[1] << "\tmax dimension:\t" << A1.upper_bound_dimension();
     }
     catch(int e)
     {

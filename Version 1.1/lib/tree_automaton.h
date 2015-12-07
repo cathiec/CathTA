@@ -444,7 +444,7 @@ public:
         int max_dim = -1;
         bool max_2_times = false;
         bool min_2_times = false;
-        //std::cout << cb << std::endl;
+
         for(int i = 1; i <= cb._size; i++)
         {
             if(cb[i]._dimension.lower() > min_dim)
@@ -473,6 +473,7 @@ public:
         dim result_dimension;
         for(int i = min_dim; i <= max_dim; i++)
             result_dimension.add(i);
+
         if(result_dimension._size == 0)
             return result;
         for(int i = 1; i <= DELTA._size; i++)
