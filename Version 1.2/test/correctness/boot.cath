@@ -1,0 +1,4 @@
+#!bin/bash
+rm -f ./correctness
+g++ correctness.cpp -o correctness -std=c++11
+./correctness

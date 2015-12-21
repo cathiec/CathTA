@@ -1,0 +1,4 @@
+#!bin/bash
+rm -f ./maxdimension
+g++ maxdimension.cpp -o maxdimension -std=c++11
+./maxdimension
