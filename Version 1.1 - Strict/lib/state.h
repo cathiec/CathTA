@@ -36,7 +36,7 @@ public:
     }
 
     /// equation
-    /* check if all a state "s" is equal to the current state */
+    /* check if a state "s" is equal to the current state */
     /* 2 states are equal if and only if their names are same */
     bool operator==(const state & s) const
     {
@@ -44,7 +44,7 @@ public:
     }
 
     /// non equation
-    /* check if all a state "s" is not equal to the current state */
+    /* check if a state "s" is not equal to the current state */
     /* 2 states are equal if and only if their names are same */
     bool operator!=(const state & s) const
     {
