@@ -1,8 +1,0 @@
-Ops a:0 f:1
-Automaton A1
-States q:0 x:0 y:0 z:0
-Final States x
-Transitions
-a ->	 y
-f(y)->z
-f(z)->x
