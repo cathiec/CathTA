@@ -25,6 +25,11 @@ public:
     basic_transition()
     {}
 
+    /// reference copy constructor
+    basic_transition(const basic_transition & t)
+    :_alpha(t._alpha), _inputs(t._inputs), _output(t._output)
+    {}
+
     /// constructor by parsing a string
     basic_transition(std::string s)
     {

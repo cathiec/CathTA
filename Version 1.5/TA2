@@ -1,0 +1,12 @@
+Ops a:0 f:2 g:1
+
+Automaton TA1
+
+States x:0 y:0 z:0
+
+Final States z
+
+Transitions 
+a -> x
+f(x,x) -> y
+g(y) -> z

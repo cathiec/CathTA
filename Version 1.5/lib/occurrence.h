@@ -1,5 +1,5 @@
-#ifndef occurence_h
-#define occurence_h
+#ifndef occurrence_h
+#define occurrence_h
 
 #include "basic_tuple.h"
 

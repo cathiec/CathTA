@@ -1,12 +1,10 @@
-#ifndef basic_tuple_h
-#define basic_tuple_h
-
-#define BASIC_TUPLE_ALLOCATION_INCREMENT 5
+#ifndef combination_h
+#define combination_h
 
 #include "basic_set.h"
 
 template<typename T>
-class basic_tuple
+class combination
 {
 
 public:
@@ -23,21 +21,21 @@ public:
 public:
 
     /// default constructor
-    basic_tuple()
+    combination()
     :_data(NULL), _size_repre(0), _size_alloc(0)
     {}
 
     /// reference copy constructor
-    basic_tuple(const basic_tuple & t)
-    :_size_repre(t._size_repre), _size_alloc(t._size_alloc)
+    combination(const combination & c)
+    :_size_repre(c._size_repre), _size_alloc(c._size_alloc)
     {
         _data = new T[_size_alloc];
         for(int i = 0; i < _size_repre; i++)
-            _data[i] = t._data[i];
+            _data[i] = c._data[i];
     }
 
     /// destructor
-    ~basic_tuple()
+    ~combination()
     {
         delete[] _data;
     }
@@ -52,24 +50,6 @@ public:
     T & operator[](int i ) const
     {
         return _data[i - 1];
-    }
-
-    /// element inclusion
-    bool contain(const T & e) const
-    {
-        for(int i = 0; i < _size_repre; i++)
-            if(e == _data[i])
-                return true;
-        return false;
-    }
-
-    /// tuple inclusion
-    bool contain(const basic_tuple<T> & t) const
-    {
-        for(int i = 0; i < t._size_repre; i++)
-            if(!contain(t._data[i]))
-                return false;
-        return true;
     }
 
     /// element insertion
@@ -94,52 +74,57 @@ public:
     }
 
     /// equation test
-    bool operator==(const basic_tuple<T> & t) const
+    bool operator==(const combination<T> & c) const
     {
-        return (contain(t)) && (t.contain(*this));
+        if(_size_repre != c._size_repre)
+            return false;
+        for(int i = 0; i < _size_repre; i++)
+            if(_data[i] != c._data[i])
+                return false;
+        return true;
     }
 
     /// non-equation test
-    bool operator !=(const basic_tuple<T> & t) const
+    bool operator !=(const combination<T> & c) const
     {
-        return !(*this == t);
+        return !(*this == c);
     }
 
     /// assignment (replacement)
-    basic_tuple<T> & operator=(const basic_tuple<T> & t)
+    combination<T> & operator=(const combination<T> & c)
     {
         delete[] _data;
-        _data = new T[t._size_alloc];
-        for(int i = 0; i < t._size_repre; i++)
-            _data[i] = t._data[i];
-        _size_repre = t._size_repre;
-        _size_alloc = t._size_alloc;
+        _data = new T[c._size_alloc];
+        for(int i = 0; i < c._size_repre; i++)
+            _data[i] = c._data[i];
+        _size_repre = c._size_repre;
+        _size_alloc = c._size_alloc;
         return *this;
     }
 
 };
 
-/// basic_tuple -> std::string
+/// combination -> std::string
 template<typename T>
-std::string to_string(const basic_tuple<T> & t)
+std::string to_string(const combination<T> & c)
 {
-    std::string result("<");
-    for(int i = 0; i < t._size_repre; i++)
+    std::string result("=");
+    for(int i = 0; i < c._size_repre; i++)
     {
-        result += to_string(t._data[i]);
+        result += to_string(c._data[i]);
         result += ",";
     }
-    if(t._size_repre != 0)
+    if(c._size_repre != 0)
         result += "\b";
-    result += ">";
+    result += "=";
     return result;
 }
 
-/// basic_tuple -> std::ostream
+/// combination -> std::ostream
 template<typename T>
-std::ostream & operator<<(std::ostream & out, const basic_tuple<T> & t)
+std::ostream & operator<<(std::ostream & out, const combination<T> & c)
 {
-    out << to_string(t);
+    out << to_string(c);
     return out;
 }
 

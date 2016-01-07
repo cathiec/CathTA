@@ -3,8 +3,10 @@
 
 #include "basic_transition.h"
 #include "basic_product_state.h"
-#include "occurence.h"
+#include "occurrence.h"
 #include "state_with_dimension.h"
+#include "words_automaton.h"
+#include "combination.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
@@ -576,6 +578,97 @@ public:
         return max_dim;
     }
 
+    /// transform into a words automaton with bound of dimension
+    basic_set<combination<std::string> > all_combinations(const basic_tuple<basic_state> inputs) const
+    {
+        basic_set<combination<std::string> >  result;
+        if(inputs.size() == 0)
+        {
+            result.add(combination<std::string> ());
+        }
+        else if(inputs.size() == 1)
+        {
+            combination<std::string> one_element;
+            one_element.add(inputs[1]._name);
+            result.add(one_element);
+        }
+        else
+        {
+            for(int i = 1; i <= inputs.size(); i++)
+            {
+                combination<std::string> temp;
+                temp.add(inputs[i]._name);
+                basic_tuple<basic_state> copy = inputs;
+                copy.del(inputs[i]);
+                basic_set<combination<std::string> > rest_cb = all_combinations(copy);
+                for(int j = 1; j <= rest_cb.size(); j++)
+                {
+                    combination<std::string> copy_temp = temp;
+                    for(int k = 1; k <= rest_cb[j].size(); k++)
+                        copy_temp.add(rest_cb[j][k]);
+                    result.add(copy_temp);
+                }
+            }
+        }
+        return result;
+    }
+
+    words_automaton transform_into_words_automaton(int max_dimension) const
+    {
+        words_automaton result;
+        result._name = "transformed " + _name;
+        words_automaton_state epsilon;
+        result.Q.add(epsilon);
+        result.I.add(epsilon);
+        for(int i = 1; i <= F.size(); i++)
+        {
+            words_automaton_state final_state;
+            final_state.push_in(F[i]._name);
+            result.F.add(final_state);
+            basic_tuple<words_automaton_state> stack;
+            stack.add(final_state);
+            while(stack.size() > 0)
+            {
+                words_automaton_state current = stack[stack.size()];
+                stack._size_repre--;
+                std::string name_of_first = current._t[current._t.size()];
+                words_automaton_state right;
+                for(int j = 1; j <= current._t.size(); j++)
+                    right.push_in(current._t[j]);
+                result.Q.add(right);
+                for(int j = 1; j <= DELTA.size(); j++)
+                    if(DELTA[j]._output == name_of_first)
+                    {
+                        basic_set<combination<std::string> > cb = all_combinations(DELTA[j]._inputs);
+                        for(int k = 1; k <= cb.size(); k++)
+                        {
+                            words_automaton_state left(current);
+                            left.push_out();
+                            for(int m = 1; m <= cb[k].size(); m++)
+                                left.push_in(cb[k][m]);
+                            // maximum dimension
+                            if(left._t.size() <= max_dimension + 1)
+                            {
+                                words_automaton_transition new_transition;
+                                new_transition._alpha = DELTA[j]._alpha._name;
+                                new_transition._right = right;
+                                new_transition._left = left;
+                                //std::cout << new_transition << std::endl;
+                                result.DELTA.add(new_transition);
+                                if(!result.Q.contain(left))
+                                {
+                                    result.Q.add(left, true);
+                                    stack.add(left);
+                                }
+                            }
+                        }
+                    }
+                //std::cout << stack << std::endl;
+            }
+        }
+        return result;
+    }
+
 };
 
 /// basic_tree_automaton -> std::string
@@ -586,7 +679,7 @@ std::string to_string(const basic_tree_automaton & ta)
     result += "Automaton [";
     result += ta._name;
     result += "]\n";
-    result += "--- RANKED ALPHABET---\n";
+    result += "--- RANKED ALPHABET ---\n";
     for(i = 1; i <= ta.SIGMA.size(); i++)
     {
         result += "\t";

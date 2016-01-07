@@ -3,7 +3,7 @@
 
 #include "basic_transition.h"
 #include "basic_product_state.h"
-#include "occurence.h"
+#include "occurrence.h"
 #include "state_with_dimension.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -586,7 +586,7 @@ std::string to_string(const basic_tree_automaton & ta)
     result += "Automaton [";
     result += ta._name;
     result += "]\n";
-    result += "--- RANKED ALPHABET---\n";
+    result += "--- RANKED ALPHABET ---\n";
     for(i = 1; i <= ta.SIGMA.size(); i++)
     {
         result += "\t";
