@@ -5,6 +5,8 @@
 #include "basic_product_state.h"
 #include "occurrence.h"
 #include "state_with_dimension.h"
+#include "words_automaton.h"
+#include "combination.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
@@ -30,6 +32,9 @@ public:
     /* finite set of transition rules */
     basic_set<basic_transition> DELTA;
 
+    /* max number of arguments for all the transition rules */
+    int _max_nb_arg;
+
 public:
 
     /// default constructor
@@ -52,6 +57,7 @@ public:
                 throw 1; /// no symbol
             bool has_name = false;
             int nb_symbols = 0;
+            _max_nb_arg = -1;
             while(file >> s)
             {
                 if(s == "\t")
@@ -61,6 +67,8 @@ public:
                     int pos_mid = s.find(':');
                     std::string symbol_name = s.substr(0, pos_mid);
                     int symbol_rank = atoi(s.substr(pos_mid + 1).c_str());
+                    if(symbol_rank > _max_nb_arg)
+                        _max_nb_arg = symbol_rank;
                     SIGMA.add(symbol(symbol_name, symbol_rank), true);
                     nb_symbols++;
                 }
@@ -144,6 +152,58 @@ public:
     /// destructor
     ~basic_tree_automaton()
     {}
+
+    /// remove all the useless elements
+    void remove_useless()
+    {
+
+    }
+
+    /// save in a file
+    void save_in_file(std::string name) const
+    {
+        std::ofstream file(name);
+        if(file.is_open())
+        {
+            // ranked alphabet
+            file << "Ops ";
+            for(int i = 1; i <= SIGMA.size(); i++)
+            {
+                file << SIGMA[i]._name;
+                file << ":";
+                file << SIGMA[i]._rank;
+                file << " ";
+            }
+            file << std::endl << std::endl;
+            // name
+            file << "Automaton A" << std::endl << std::endl;
+            // finite set of states
+            file << "States ";
+            for(int i = 1; i <= Q.size(); i++)
+            {
+                file << Q[i] << " ";
+            }
+            file << std::endl << std::endl;
+            // finite set of final states
+            file << "Final States ";
+            for(int i = 1; i <= F.size(); i++)
+            {
+                file << F[i] << " ";
+            }
+            file << std::endl << std::endl;
+            // finite set of transition rules
+            file << "Transitions" << std::endl;
+            for(int i = 1; i <= DELTA.size(); i++)
+            {
+                file << to_string(DELTA[i]) << std::endl;
+            }
+            file.close();
+        }
+        else
+        {
+            throw 8; ///cannot create a new file
+        }
+    }
 
     /// union
     basic_tree_automaton rename() const
@@ -575,6 +635,100 @@ public:
             }
         }
         return max_dim;
+    }
+
+    /// transform into a words automaton with bound of dimension
+    basic_set<combination<std::string> > all_combinations(const basic_tuple<basic_state> inputs) const
+    {
+        basic_set<combination<std::string> >  result;
+        if(inputs.size() == 0)
+        {
+            result.add(combination<std::string> ());
+        }
+        else if(inputs.size() == 1)
+        {
+            combination<std::string> one_element;
+            one_element.add(inputs[1]._name);
+            result.add(one_element);
+        }
+        else
+        {
+            for(int i = 1; i <= inputs.size(); i++)
+            {
+                combination<std::string> temp;
+                temp.add(inputs[i]._name);
+                basic_tuple<basic_state> copy = inputs;
+                copy.del(inputs[i]);
+                basic_set<combination<std::string> > rest_cb = all_combinations(copy);
+                for(int j = 1; j <= rest_cb.size(); j++)
+                {
+                    combination<std::string> copy_temp = temp;
+                    for(int k = 1; k <= rest_cb[j].size(); k++)
+                        copy_temp.add(rest_cb[j][k]);
+                    result.add(copy_temp);
+                }
+            }
+        }
+        return result;
+    }
+
+    words_automaton transform_into_words_automaton(int max_dimension) const
+    {
+        int max_stack_size = (_max_nb_arg - 1) * max_dimension + 1;
+        if(max_stack_size < 1)
+            max_stack_size = 1;
+        words_automaton result;
+        result._name = "transformed " + _name;
+        words_automaton_state epsilon;
+        result.Q.add(epsilon);
+        result.I.add(epsilon);
+        for(int i = 1; i <= F.size(); i++)
+        {
+            words_automaton_state final_state;
+            final_state.push_in(F[i]._name);
+            result.F.add(final_state);
+            basic_tuple<words_automaton_state> stack;
+            stack.add(final_state);
+            while(stack.size() > 0)
+            {
+                words_automaton_state current = stack[stack.size()];
+                stack._size_repre--;
+                std::string name_of_first = current._t[current._t.size()];
+                words_automaton_state right;
+                for(int j = 1; j <= current._t.size(); j++)
+                    right.push_in(current._t[j]);
+                result.Q.add(right);
+                for(int j = 1; j <= DELTA.size(); j++)
+                    if(DELTA[j]._output == name_of_first)
+                    {
+                        basic_set<combination<std::string> > cb = all_combinations(DELTA[j]._inputs);
+                        for(int k = 1; k <= cb.size(); k++)
+                        {
+                            words_automaton_state left(current);
+                            left.push_out();
+                            for(int m = 1; m <= cb[k].size(); m++)
+                                left.push_in(cb[k][m]);
+                            // maximum dimension
+                            if(left._t.size() <= max_stack_size)
+                            {
+                                words_automaton_transition new_transition;
+                                new_transition._alpha = DELTA[j]._alpha._name;
+                                new_transition._right = right;
+                                new_transition._left = left;
+                                //std::cout << new_transition << std::endl;
+                                result.DELTA.add(new_transition);
+                                if(!result.Q.contain(left))
+                                {
+                                    result.Q.add(left, true);
+                                    stack.add(left);
+                                }
+                            }
+                        }
+                    }
+                //std::cout << stack << std::endl;
+            }
+        }
+        return result;
     }
 
 };

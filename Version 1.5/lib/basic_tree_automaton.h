@@ -135,6 +135,7 @@ public:
             while(getline(file, s))
                 if(s.length() > 0)
                     DELTA.add(basic_transition(s), true);
+            file.close();
         }
         else
         {
