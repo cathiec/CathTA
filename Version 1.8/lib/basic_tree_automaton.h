@@ -508,7 +508,7 @@ public:
         return result;
     }
 
-    basic_set<state_with_dimension> Post(basic_set<state_with_dimension> Processed, state_with_dimension qd, bool check_triangle = true) const
+    basic_set<state_with_dimension> Post(basic_set<state_with_dimension> Processed, state_with_dimension qd) const
     {
         basic_set<state_with_dimension> result;
         for(int i = 1; i <= DELTA.size(); i++)
@@ -545,16 +545,13 @@ public:
                 {
                     state_with_dimension one_result(t._output._name);
                     int max_d = -1;
+                    int max_d_for_min = -1;
                     bool max_d_twice = false;
-                    bool triangle = false;
+                    bool max_d_twice_for_min = false;
                     for(int k = 1; k <= all_possible_inputs[j].size(); k++)
                     {
                         one_result.add_history(all_possible_inputs[j][k]);
-                        if(one_result.triangle_check())
-                        {
-                            triangle = true;
-                            break;
-                        }
+                        one_result.triangle_check();
                         if(all_possible_inputs[j][k]._dimension > max_d)
                         {
                             max_d = all_possible_inputs[j][k]._dimension;
@@ -562,15 +559,20 @@ public:
                         }
                         else if(all_possible_inputs[j][k]._dimension == max_d)
                             max_d_twice = true;
+                        if(all_possible_inputs[j][k]._min_dimension > max_d_for_min)
+                        {
+                            max_d_for_min = all_possible_inputs[j][k]._min_dimension;
+                            max_d_twice_for_min = false;
+                        }
+                        else if(all_possible_inputs[j][k]._min_dimension == max_d_for_min)
+                            max_d_twice_for_min = true;
                     }
-                    if(check_triangle && triangle)
-                        one_result._dimension = -1;
-                    else
-                    {
-                        if(max_d_twice)
-                            max_d++;
-                        one_result._dimension = max_d;
-                    }
+                    if(max_d_twice)
+                        max_d++;
+                    if(max_d_twice_for_min)
+                        max_d_for_min++;
+                    one_result._dimension = max_d;
+                    one_result._min_dimension = max_d_for_min;
                     result.add(one_result);
                 }
             }
@@ -585,31 +587,33 @@ public:
         for(int i = 1; i <= DELTA.size(); i++)
             if(DELTA[i]._alpha._rank == 0)
             {
-                state_with_dimension qd(DELTA[i]._output._name, 0);
+                state_with_dimension qd(DELTA[i]._output._name, 0, 0);
                 Next.add(qd);
-                dt.add_data(qd);
             }
-        int max_dim = 0;
-        bool check_triangle = (force_dimension == -1) ? true : false;
-        std::cout << Next << std::endl;
+        bool has_triangle = false;
         while(Next.size() > 0)
         {
             state_with_dimension qd = Next[1];
-            //std::cout << qd <<std::endl;
             // save the min and max dimension of every state
-            dt.add_data(qd);
             Next.del(qd);
             Processed.add(qd);
-            basic_set<state_with_dimension> Post_Processed_qd = Post(Processed, qd, check_triangle);
+            basic_set<state_with_dimension> Post_Processed_qd = Post(Processed, qd);
             for(int i = 1; i <= Post_Processed_qd.size(); i++)
             {
                 state_with_dimension pe = Post_Processed_qd[i];
-                if(pe._dimension == -1 && force_dimension == -1)
-                    return -1;
-                else if(force_dimension != -1 && pe._dimension > force_dimension)
-                    continue;
-                if(pe._dimension > max_dim)
-                    max_dim = pe._dimension;
+                if(pe._triangle)
+                {
+                    has_triangle = true;
+                    if(force_dimension == -1)
+                        return -1;
+                }
+                if(force_dimension != -1 && pe._dimension > force_dimension)
+                {
+                    if(pe._min_dimension > force_dimension)
+                        continue;
+                    else
+                        pe._dimension = force_dimension;
+                }
                 bool exist = false;
                 for(int j = 1; j <= Processed.size(); j++)
                 {
@@ -637,19 +641,33 @@ public:
                     {
                         state_with_dimension pf = Processed[j];
                         if(pf <= pe)
+                        {
                             Processed.del(pf);
+                            if(pe._min_dimension > pf._min_dimension)
+                                pe._min_dimension = pf._min_dimension;
+                        }
+
                     }
                     for(int j = 1; j <= Next.size(); j++)
                     {
                         state_with_dimension pf = Next[j];
                         if(pf <= pe)
+                        {
                             Next.del(pf);
+                            if(pe._min_dimension > pf._min_dimension)
+                                pe._min_dimension = pf._min_dimension;
+                        }
                     }
                     Next.add(pe);
                 }
             }
         }
-        return max_dim;
+        for(int i = 1; i <= Processed.size(); i++)
+            dt.add_data(Processed[i]);
+        if(!has_triangle)
+            return dt._max_dim;
+        else
+            return -1;
     }
 
     /// transform into a words automaton with bound of dimension

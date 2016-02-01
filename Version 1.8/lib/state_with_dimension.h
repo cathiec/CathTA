@@ -13,20 +13,24 @@ public:
 
     /* dimension of the state */
     int _dimension;
+    int _min_dimension;
 
     /* history of the construction */
     basic_set<component> _history;
 
+    /* find a triangle currently */
+    bool _triangle;
+
 public:
 
     /// default constructor
-    state_with_dimension(std::string n = "unnamed", int d = 0)
-    :_name(n), _dimension(d)
+    state_with_dimension(std::string n = "unnamed", int d = 0, int md = 0)
+    :_name(n), _dimension(d), _min_dimension(md), _triangle(false)
     {}
 
     /// reference copy constructor
     state_with_dimension(const state_with_dimension & s)
-    :_name(s._name), _dimension(s._dimension), _history(s._history)
+    :_name(s._name), _dimension(s._dimension), _min_dimension(s._min_dimension), _history(s._history), _triangle(s._triangle)
     {}
 
     /// destructor
@@ -38,13 +42,15 @@ public:
     {
         _name = s._name;
         _dimension = s._dimension;
+        _min_dimension = s._min_dimension;
         _history = s._history;
+        _triangle = s._triangle;
     }
 
     /// equation test
     bool operator==(const state_with_dimension & s) const
     {
-        return (_name == s._name) && (_dimension == s._dimension) && (_history == s._history);
+        return (_name == s._name) && (_dimension == s._dimension) && (_min_dimension == s._min_dimension) && (_history == s._history) && (_triangle == s._triangle);
     }
 
     /// non-equation test
@@ -101,11 +107,15 @@ public:
     }
 
     /// triangle check
-    bool triangle_check() const
+    bool triangle_check()
     {
         for(int i = 1; i <= _history.size(); i++)
             if(_name == _history[i]._name && _history[i]._occurrence >= 2)
+            {
+                _triangle = true;
                 return true;
+            }
+        _triangle = false;
         return false;
     }
 
@@ -114,7 +124,7 @@ public:
 /// basic_state -> std::string
 std::string to_string(const state_with_dimension & s)
 {
-    return s._name + "(" + to_string(s._dimension) + ")" + " " + to_string(s._history);
+    return s._name + "(" + to_string(s._min_dimension) + "," + to_string(s._dimension) + ")" + " " + to_string(s._history);
 }
 
 /// basic_state -> std::ostream

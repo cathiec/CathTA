@@ -32,18 +32,9 @@ public:
     /// add data
     void add_data(const state_with_dimension & s)
     {
-        int index = _state.find(s._name);
-        if(index != -1)
-        {
-            if(s._dimension > _max[index])
-                _max[index] = s._dimension;
-        }
-        else
-        {
-            _state.add(s._name, true);
-            _min.add(s._dimension);
-            _max.add(s._dimension);
-        }
+        _state.add(s._name, true);
+        _min.add(s._min_dimension);
+        _max.add(s._dimension);
         if(s._dimension > _max_dim)
             _max_dim = s._dimension;
     }
