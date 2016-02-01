@@ -43,6 +43,15 @@ public:
         delete[] _data;
     }
 
+    /// find an element and return its index (starting from 1)
+    int find(const T & e) const
+    {
+        for(int i = 0; i < _size_repre; i++)
+            if(e == _data[i])
+                return i + 1;
+        return -1;
+    }
+
     /// size
     int size() const
     {

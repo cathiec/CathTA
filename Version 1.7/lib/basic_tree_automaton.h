@@ -7,6 +7,7 @@
 #include "state_with_dimension.h"
 #include "words_automaton.h"
 #include "combination.h"
+#include "dim_table.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
@@ -34,6 +35,9 @@ public:
 
     /* max number of arguments for all the transition rules */
     int _max_nb_arg;
+
+    /* table containing min and max dimension for each state */
+    dim_table dt;
 
 public:
 
@@ -504,7 +508,7 @@ public:
         return result;
     }
 
-    basic_set<state_with_dimension> Post(basic_set<state_with_dimension> Processed, state_with_dimension qd) const
+    basic_set<state_with_dimension> Post(basic_set<state_with_dimension> Processed, state_with_dimension qd, bool check_triangle = true) const
     {
         basic_set<state_with_dimension> result;
         for(int i = 1; i <= DELTA.size(); i++)
@@ -559,7 +563,7 @@ public:
                         else if(all_possible_inputs[j][k]._dimension == max_d)
                             max_d_twice = true;
                     }
-                    if(triangle)
+                    if(check_triangle && triangle)
                         one_result._dimension = -1;
                     else
                     {
@@ -574,25 +578,36 @@ public:
         return result;
     }
 
-    int max_dimension() const
+    int max_dimension(int force_dimension = -1)
     {
         basic_set<state_with_dimension> Processed;
         basic_set<state_with_dimension> Next;
         for(int i = 1; i <= DELTA.size(); i++)
             if(DELTA[i]._alpha._rank == 0)
-                Next.add(state_with_dimension(DELTA[i]._output._name, 0));
+            {
+                state_with_dimension qd(DELTA[i]._output._name, 0);
+                Next.add(qd);
+                dt.add_data(qd);
+            }
         int max_dim = 0;
+        bool check_triangle = (force_dimension == -1) ? true : false;
+        std::cout << Next << std::endl;
         while(Next.size() > 0)
         {
             state_with_dimension qd = Next[1];
+            //std::cout << qd <<std::endl;
+            // save the min and max dimension of every state
+            dt.add_data(qd);
             Next.del(qd);
             Processed.add(qd);
-            basic_set<state_with_dimension> Post_Processed_qd = Post(Processed, qd);
+            basic_set<state_with_dimension> Post_Processed_qd = Post(Processed, qd, check_triangle);
             for(int i = 1; i <= Post_Processed_qd.size(); i++)
             {
                 state_with_dimension pe = Post_Processed_qd[i];
-                if(pe._dimension == -1)
+                if(pe._dimension == -1 && force_dimension == -1)
                     return -1;
+                else if(force_dimension != -1 && pe._dimension > force_dimension)
+                    continue;
                 if(pe._dimension > max_dim)
                     max_dim = pe._dimension;
                 bool exist = false;
@@ -704,6 +719,18 @@ public:
                         basic_set<combination<std::string> > cb = all_combinations(DELTA[j]._inputs);
                         for(int k = 1; k <= cb.size(); k++)
                         {
+                            /*
+                            // check if we cazn eliminate this combination
+                            bool eliminate = false;
+                            for(int first = 1; first <= cb[k].size() - 1; first++)
+                            {
+                                int max_first = dt._max(dt._state.find(cb[k][first]));
+                                int min_second = dt._min(dt._state.find(cb[k][first + 1]));
+                                if(max_first )
+                            }
+                            if(eliminate)
+                                continue;
+                            */
                             words_automaton_state left(current);
                             left.push_out();
                             for(int m = 1; m <= cb[k].size(); m++)
