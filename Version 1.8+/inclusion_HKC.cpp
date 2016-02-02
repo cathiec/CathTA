@@ -43,7 +43,7 @@ int main(int argc, char ** argv)
     /// compute the maximum dimension of 2nd tree automaton
     cout << "# Start computing the maximum dimension of 2nd tree automaton..." << endl;
     start = clock();
-    int max_dim_2 = TA2.max_dimension();
+    int max_dim_2 = TA2.max_dimension(max_dim_1);
     end = clock();
     double t_p2 = ((double)(end - start)) / ((double)CLOCKS_PER_SEC / 1000);
     cout << "\t|\tThe miximum dimension of 2nd tree automaton is: ";
@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
         total_t = t_p1 + t_p2 + t_p5;
     }
 
-    cout << "Total time used: " << total_t << endl;
+    cout << "Total time used: " << total_t << " ms" << endl;
 
 	return 0;
 }

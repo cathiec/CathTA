@@ -737,18 +737,23 @@ public:
                         basic_set<combination<std::string> > cb = all_combinations(DELTA[j]._inputs);
                         for(int k = 1; k <= cb.size(); k++)
                         {
-                            /*
                             // check if we cazn eliminate this combination
                             bool eliminate = false;
-                            for(int first = 1; first <= cb[k].size() - 1; first++)
+                            for(int first = cb[k].size(); first >= 2; first--)
                             {
-                                int max_first = dt._max(dt._state.find(cb[k][first]));
-                                int min_second = dt._min(dt._state.find(cb[k][first + 1]));
-                                if(max_first )
+                                int pos_first_in_dim_table = dt.find(cb[k][first]);
+                                for(int second = first - 1; second >= 1; second--)
+                                {
+                                    int pos_second_in_dim_table = dt.find(cb[k][second]);
+                                    if(dt._max[pos_first_in_dim_table] < dt._min[pos_second_in_dim_table])
+                                    {
+                                        eliminate = true;
+                                        break;
+                                    }
+                                }
                             }
                             if(eliminate)
                                 continue;
-                            */
                             words_automaton_state left(current);
                             left.push_out();
                             for(int m = 1; m <= cb[k].size(); m++)
@@ -760,7 +765,6 @@ public:
                                 new_transition._alpha = DELTA[j]._alpha._name;
                                 new_transition._right = right;
                                 new_transition._left = left;
-                                //std::cout << new_transition << std::endl;
                                 result.DELTA.add(new_transition);
                                 if(!result.Q.contain(left))
                                 {
@@ -770,7 +774,6 @@ public:
                             }
                         }
                     }
-                //std::cout << stack << std::endl;
             }
         }
         return result;

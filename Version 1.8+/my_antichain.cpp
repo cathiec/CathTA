@@ -40,7 +40,7 @@ int main(int argc, char ** argv)
         cout << "included" << endl;
     cout << "--------------------------------------------------" << endl;
 
-    cout << "Total time used: " << t_p << endl;
+    cout << "Total time used: " << t_p << " ms" << endl;
 
 	return 0;
 }

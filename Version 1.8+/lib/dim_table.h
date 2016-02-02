@@ -39,6 +39,17 @@ public:
             _max_dim = s._dimension;
     }
 
+    /// find the index of an element
+    int find(std::string s) const
+    {
+        for(int i = 1; i <= _state.size(); i++)
+        {
+            if(_state[i] == s)
+                return i;
+        }
+        return -1;
+    }
+
 };
 
 /// dim_table -> std::string
