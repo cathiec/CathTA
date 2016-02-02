@@ -1,0 +1,59 @@
+#!/usr/bin/python
+#
+# Adam Rogalewicz
+# 
+# SL to TA - top level calls
+# distrubuted under GNU GPL licence
+
+# use python entailment.py file_with_pred1 file_with_pred2
+
+import input
+import rotate
+import sys
+import os
+import vata
+import functions
+from settings import *
+import emptyheap
+
+#debug=False
+debug=True
+
+def main():
+	if len(sys.argv)!=3:
+		print "Expected 2 parameters"
+		print "Usage: entailment.py file_with_pred1 file_with_pred2"
+		sys.exit()
+	tiles=[]
+	(aut1,emptyheap_eq1)=input.parse_input(sys.argv[1],tiles)
+	(aut2,emptyheap_eq2)=input.parse_input(sys.argv[2],tiles)
+	if not emptyheap.entailment(emptyheap_eq1,emptyheap_eq2):
+		print "Entailment result: (0=false, 1=true):"
+		print "0"
+		return 0
+	aut2_closure=rotate.rotate_closure(aut2,tiles)
+	file1=functions.get_tmp_filename()
+	file2=functions.get_tmp_filename()
+	vata.aut_to_file(aut1,file1,"aut1")
+	vata.call_vata_union(aut2_closure,file2)
+	print "Number of states/transitions of A1: ",len(rotate.get_states(aut1)),"/", len(aut1["rules"])
+	print "Number of states/transitions of A2 (before rot. closure): ",len(rotate.get_states(aut2)),"/",len(aut2["rules"])
+	print "Number of states/transitions after closure of A2: ",len(vata.get_states_vata(file2)),"/",vata.get_trans_number(file2)
+	print "Entailment result (0=false, 1=true):"
+	retvalue=os.system("%s incl %s %s"%(VATA_path,file1,file2))
+	# remove tmp files
+	os.unlink(file1)
+	os.unlink(file2)
+
+if debug:
+	# debug mode
+	main()
+else:
+	#hide all error messages of slide and return errcode==1 
+	try:
+		main()
+	except:
+		print "UNKNOWN"
+		sys.exit(1)
+
+

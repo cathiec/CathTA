@@ -1,0 +1,7 @@
+Entail LHS(x,p) |- RHS(x,p)
+
+LHS(x,p) ::= LS(x,p)
+
+RHS(x,p) ::= \E y . LS(x,y) * LS(y,p)
+
+LS(hd,tl) ::= hd=tl & emp | \E z . hd->z * LS(z,tl)

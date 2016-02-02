@@ -1,0 +1,61 @@
+#!/bin/sh
+# this script split the file created by  smt2sl into two separate files for lhs and rhs
+
+writeerror() {
+	echo "Error: $1" >&2
+	exit 1
+}
+
+# basic checks
+if [ "X$1" == "X" ]; then
+	echo "Usage: slide-wrapper.sh input_file"
+	exit 
+fi
+
+if type dirname >/dev/null; then
+	dir=$( dirname  $0 )
+else
+	dir="."
+fi
+
+if [ -f "$1" ]; then
+	true
+else
+	writeerror "Input file $1 does not exists"
+fi
+
+# create temporary files for LHS and RHS
+lhs=$(mktemp)
+rhs=$(mktemp)
+
+if grep "^[[:space:]]*LHS.*::=.*->" $1 >/dev/null; then
+	grep "Entail" $1 | sed "s/^.*LHS\(.*\)|-.*$/RootCall LHS\1/" >> $lhs
+	grep -v "Entail" $1 | grep -v "^[[:space:]]*RHS.*::=" >> $lhs
+else
+	if grep "^[[:space:]]*LHS[[:space:]]*(" $1 >/dev/null; then
+		true
+	else
+		writeerror "No LHS specified"
+	fi
+	grep "^[[:space:]]*LHS[[:space:]]*(" $1 | sed "s/^[[:space:]]*LHS.*::=//" >>$lhs
+	grep -v "Entail" $1 | grep -v "^[[:space:]]*RHS[[:space:]]*(.*::=" | grep -v "^[[:space:]]*LHS[[:space:]]*(.*::=" >> $lhs
+fi
+if grep "^[[:space:]]*RHS.*::=.*->" $1 >/dev/null; then
+	grep Entail $1 | sed "s/^.*RHS\(.*\)|-.*$/RootCall RHS\1/" >> $rhs
+	grep -v "Entail" $1 | grep -v "^[[:space:]]*RHS.*::=" >> $rhs
+else
+	if grep "^[[:space:]]*RHS[[:space:]]*(" $1 >/dev/null; then
+		true
+	else
+		writeerror "No RHS specified"
+	fi
+	grep "^[[:space:]]*RHS[[:space:]]*(" $1 | sed "s/^[[:space:]]*RHS.*::=/RootCall /" >>$rhs
+	grep -v "Entail" $1 | grep -v "^[[:space:]]*RHS[[:space:]]*(.*::=" | grep -v "^[[:space:]]*LHS[[:space:]]*(.*::=" >> $rhs
+fi
+
+echo "------"
+cat $lhs
+echo "------"
+cat $rhs
+
+python $dir/entailment.py -s $lhs $rhs
