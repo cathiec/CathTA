@@ -1,0 +1,21 @@
+Ops EPSILON:0 f6:1 f0:1 f7:1 f4:1 f5:1 f1:1 f2:1 
+
+Automaton A
+
+States q1 q2 q3 q4 q5 q6 q7 q8 
+
+Final States q2 q3 q5 q7 
+
+Transitions
+EPSILON() -> q1
+f6(q4) -> q3
+f0(q1) -> q4
+f7(q4) -> q4
+f4(q1) -> q5
+f5(q6) -> q5
+f1(q1) -> q6
+f2(q6) -> q6
+f4(q1) -> q7
+f5(q8) -> q7
+f1(q1) -> q8
+f2(q8) -> q8

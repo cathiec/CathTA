@@ -1,0 +1,10 @@
+Ops EPSILON:0 
+
+Automaton A
+
+States q1 q2 
+
+Final States q2 
+
+Transitions
+EPSILON() -> q1
