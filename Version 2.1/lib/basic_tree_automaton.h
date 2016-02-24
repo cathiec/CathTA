@@ -11,6 +11,10 @@
 
 #define MAX_DIMENSION 100
 
+int global_counter = 0;
+int global_add = 0;
+int global_del = 0;
+
 class basic_tree_automaton
 {
 
@@ -438,6 +442,8 @@ public:
             if(q == p && Q.contain(P))
             {
                 Processed[d].del(Processed[d][j]);
+                global_counter--;
+                global_del++;
                 j--;
                 k--;
             }
@@ -529,7 +535,12 @@ public:
                                     break;
                             }
                             if(at_least_2_in_Processed_d_minus_1 == true)
-                                Next.add(basic_product_state(DELTA[i]._output, B.post(DELTA[i]._alpha, possible_P1_to_Pn[j])));
+                            {
+                                basic_product_state temp(DELTA[i]._output, B.post(DELTA[i]._alpha, possible_P1_to_Pn[j]));
+                                if(accept(temp, B))
+                                    return false;
+                                Next.add(temp);
+                            }
                         }
                     }
                 }
@@ -539,10 +550,23 @@ public:
         {
             // pick a product state (r,R) from next
             basic_product_state rR = Next[1];
-            std::cout << rR << std::endl;
+            //std::cout << rR << std::endl;
             Next.del(rR);
             // add (r,R) into processed of current dimension
+            //std::cout << "ADD in " << d << ": " << rR <<std::endl;
             Processed[d].add(rR);
+            global_counter++;
+            global_add++;
+            for(int i = 0; i < d; i++)
+            {
+                if(Processed[i].contain(rR))
+                {
+                    //std::cout << "DEL from " << i << ": " << rR <<std::endl;
+                    Processed[i].del(rR);
+                    global_del++;
+                    global_counter--;
+                }
+            }
             // compute the post image of rR
             /**
              **  dimension 0
@@ -612,9 +636,17 @@ public:
         {
             //std::cout << i << ":" << std::endl;
             if(is_included_in(B, i, Processed) == false)
+            {
+                std::cout << global_counter << std::endl;
+                std::cout << global_add << std::endl;
+                std::cout << global_del << std::endl;
                 return false;
+            }
             //std::cout << Processed[i] << std::endl;
         }
+        std::cout << global_counter << std::endl;
+        std::cout << global_add << std::endl;
+        std::cout << global_del << std::endl;
         return true;
     }
 

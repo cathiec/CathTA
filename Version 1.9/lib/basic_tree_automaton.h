@@ -404,6 +404,7 @@ public:
     /* check if the language of the current tree automaton is included in the language of a tree automaton "B" */
     bool is_included_in(const basic_tree_automaton & B) const
     {
+        int global_counter = 0, global_add = 0, global_del = 0;
         basic_set<basic_product_state> Processed;
         basic_set<basic_product_state> Next;
         for(int i = 1; i <= DELTA.size(); i++)
@@ -419,6 +420,8 @@ public:
             basic_product_state rR = Next[1];
             Next.del(rR);
             Processed.add(rR);
+            global_counter++;
+            global_add++;
             basic_set<basic_product_state> rR_post = post(rR, Processed, B);
             for(int i = 1; i <= rR_post.size(); i++)
             {
@@ -426,7 +429,12 @@ public:
                 basic_state p = pP._1;
                 basic_set<basic_state> P = pP._2;
                 if(accept(pP, B))
+                {
+                    std::cout << global_counter << std::endl;
+                    std::cout << global_add << std::endl;
+                    std::cout << global_del << std::endl;
                     return false;
+                }
                 bool exist = false;
                 for(int j = 1; j <= Processed.size(); j++)
                 {
@@ -452,17 +460,22 @@ public:
                 }
                 if(exist)
                     continue;
-                for(int j = 1; j <= Processed.size(); j++)
+                int k = Processed.size();
+                for(int j = 1; j <= k; j++)
                 {
                     basic_state q = Processed[j]._1;
                     basic_set<basic_state> Q = Processed[j]._2;
                     if(q == p && Q.contain(P))
                     {
                         Processed.del(Processed[j]);
+                        global_counter--;
+                        global_del++;
                         j--;
+                        k--;
                     }
                 }
-                for(int j = 1; j <= Next.size(); j++)
+                k = Next.size();
+                for(int j = 1; j <= k; j++)
                 {
                     basic_state q = Next[j]._1;
                     basic_set<basic_state> Q = Next[j]._2;
@@ -470,11 +483,15 @@ public:
                     {
                         Next.del(Next[j]);
                         j--;
+                        k--;
                     }
                 }
                 Next.add(pP);
             }
         }
+        std::cout << global_counter << std::endl;
+        std::cout << global_add << std::endl;
+        std::cout << global_del << std::endl;
         return true;
     }
 
@@ -604,6 +621,7 @@ public:
                 if(pe._triangle)
                 {
                     has_triangle = true;
+                    std::cout << pe << std::endl;
                     if(force_dimension == -1)
                         return -1;
                 }

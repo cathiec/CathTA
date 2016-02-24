@@ -1,0 +1,11 @@
+Ops a:0 f:1
+
+Automaton NONAME
+
+States x:0 y:0
+
+Final States y
+
+Transitions 
+a -> x
+f(x) -> y
