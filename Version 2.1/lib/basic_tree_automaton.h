@@ -625,13 +625,32 @@ public:
                 }
             }
         }
+        for(int i = 1; i <= Processed[d].size(); i++)
+        {
+            basic_product_state pP = Processed[d][i];
+            for(int j = 0; j < d; j++)
+            {
+                int l = Processed[j].size();
+                for(int k = 1; k <= l; k++)
+                {
+                    if(pP._1 == Processed[j][k]._1 && Processed[j][k]._2.contain(pP._2))
+                    {
+                        Processed[j].del(Processed[j][k]);
+                        k--;
+                        l--;
+                        global_del++;
+                        global_counter--;
+                    }
+                }
+            }
+        }
         return true;
     }
 
     /* check inclusion by giving a maximum dimension */
     bool is_included_in(const basic_tree_automaton & B, int b) const
     {
-        basic_set<basic_product_state> Processed[MAX_DIMENSION];
+        basic_set<basic_product_state> Processed[MAX_DIMENSION + 1];
         for(int i = 0; i <= b; i++)
         {
             //std::cout << i << ":" << std::endl;

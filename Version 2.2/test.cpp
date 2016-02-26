@@ -1,10 +1,9 @@
-#include "TA.h"
+#include "basic_tree_automaton.h"
+
+using namespace std;
 
 int main(int argc, char ** argv)
 {
-    basic_tree_automaton A(argv[1]), B(argv[2]);
-    if(A.is_included_in(B, 100))
-        std::cout << "YES" << std::endl;
-    else
-        std::cout << "NO" << std::endl;
+    tree_automaton A("A2003");
+    cout << A.DELTA.size() << endl;
 }
