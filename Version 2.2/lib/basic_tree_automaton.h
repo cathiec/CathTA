@@ -410,6 +410,22 @@ public:
     const
     {
         bool exist = false;
+
+        for(int j = 0; j < d; j++)
+        {
+            int l = Processed[j].size();
+            for(int k = 1; k <= l; k++)
+            {
+                if(p == Processed[j][k]._1 && P.contain(Processed[j][k]._2))
+                {
+                    exist = true;
+                    Processed[d].add(Processed[j][k]);
+                    Processed[j].del(Processed[j][k]);
+                    break;
+                }
+            }
+        }
+
         for(int j = 1; j <= Processed[d].size(); j++)
         {
             basic_state q = Processed[d][j]._1;
@@ -434,29 +450,31 @@ public:
         }
         if(exist)
             return 0;
-        int k = Processed[d].size();
-        for(int j = 1; j <= k; j++)
+        for(int j = 0; j < d; j++)
         {
-            basic_state q = Processed[d][j]._1;
-            basic_set<basic_state> Q = Processed[d][j]._2;
-            if(q == p && Q.contain(P))
+            int l = Processed[j].size();
+            for(int k = 1; k <= l; k++)
             {
-                //std::cout << "DEL: " << Processed[d][j] <<std::endl;
-                Processed[d].del(Processed[d][j]);
-                global_counter--;
-                global_del++;
-                j--;
-                k--;
+                if(p == Processed[j][k]._1 && Processed[j][k]._2.contain(P))
+                {
+                    //std::cout << "DEL from " << j << ": " << Processed[j][k] <<std::endl;
+                    Processed[j].del(Processed[j][k]);
+                    k--;
+                    l--;
+                    global_del++;
+                    global_counter--;
+                }
             }
         }
-        k = Next.size();
+        int k = Next.size();
         for(int j = 1; j <= k; j++)
         {
             basic_state q = Next[j]._1;
             basic_set<basic_state> Q = Next[j]._2;
             if(q == p && Q.contain(P))
             {
-                Next.del(Next[j]);
+                //std::cout << "DEL: " << Next[j] <<std::endl;
+                Next.del(Next[j]); 
                 j--;
                 k--;
             }
@@ -489,7 +507,7 @@ public:
         /**
          **  dimension > 0
          **/
-        else
+        else if(Processed[d - 1].size() > 0)
         {
             basic_set<basic_state> q_Processed;
             for(int i = 1; i <= Processed[d - 1].size(); i++)
@@ -516,6 +534,7 @@ public:
                     }
                     if(at_least_2_in_Processed_d_minus_1)
                     {
+                        //std::cout << d << DELTA[i] << std::endl;
                         basic_set<basic_product_state> safe_processed;
                         for(int j = 0; j < d; j++)
                             safe_processed.add(Processed[j]);
@@ -540,6 +559,8 @@ public:
                                 basic_product_state temp(DELTA[i]._output, B.post(DELTA[i]._alpha, possible_P1_to_Pn[j]));
                                 if(accept(temp, B))
                                     return false;
+                                //if(optimize(temp._1, temp._2, d, Processed, Next) != 0)
+                                //optimize(temp._1, temp._2, d, Processed, Next);
                                 Next.add(temp);
                             }
                         }
@@ -549,12 +570,11 @@ public:
         // start computing next
         while(Next.size() > 0)
         {
+            //std::cout << d << " NEXT " << Next << std::endl;
             // pick a product state (r,R) from next
             basic_product_state rR = Next[1];
-            //std::cout << rR << std::endl;
             Next.del(rR);
             // add (r,R) into processed of current dimension
-            //std::cout << "ADD in " << d << ": " << rR <<std::endl;
             Processed[d].add(rR);
             global_counter++;
             global_add++;
@@ -613,26 +633,6 @@ public:
                     // optimization
                     if(optimize(p, P, d, Processed, Next) != 0)
                         Next.add(pP);
-                }
-            }
-        }
-        for(int i = 1; i <= Processed[d].size(); i++)
-        {
-            basic_product_state pP = Processed[d][i];
-            for(int j = 0; j < d; j++)
-            {
-                int l = Processed[j].size();
-                for(int k = 1; k <= l; k++)
-                {
-                    if(pP._1 == Processed[j][k]._1 && Processed[j][k]._2.contain(pP._2))
-                    {
-                        //std::cout << "DEL from " << j << ": " << Processed[j][k] <<std::endl;
-                        Processed[j].del(Processed[j][k]);
-                        k--;
-                        l--;
-                        global_del++;
-                        global_counter--;
-                    }
                 }
             }
         }

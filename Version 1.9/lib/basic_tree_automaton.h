@@ -420,6 +420,7 @@ public:
             basic_product_state rR = Next[1];
             Next.del(rR);
             Processed.add(rR);
+            //std::cout << "ADD: " << rR << std::endl;
             global_counter++;
             global_add++;
             basic_set<basic_product_state> rR_post = post(rR, Processed, B);
