@@ -33,6 +33,11 @@ public:
         return _name == s._name;
     }
 
+    bool operator!=(const state & s) const
+    {
+        return _name != s._name;
+    }
+
     bool operator<(const state & s) const
     {
         return _name < s._name;

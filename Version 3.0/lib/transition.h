@@ -92,10 +92,16 @@ public:
         _inputs.push_back(i);
     }
 
-    // get input by giving index (starting from 1)
+    // get input by giving index (starting from 0)
     const state & get_input(int i) const
     {
-        return _inputs[i - 1];
+        return _inputs[i];
+    }
+
+    // get inputs
+    std::vector<state> get_inputs() const
+    {
+        return _inputs;
     }
 
     // to string
@@ -105,9 +111,9 @@ public:
         if(_inputs.size() > 0)
         {
             result += '(';
-            for(int i = 1; i <= _inputs.size(); i++)
+            for(int i = 0; i < _inputs.size(); i++)
             {
-                result += _inputs[i - 1].to_string();
+                result += _inputs[i].to_string();
                 result += ',';
             }
             result.erase(result.length() - 1);
