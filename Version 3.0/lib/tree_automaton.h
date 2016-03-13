@@ -438,7 +438,8 @@ public:
     }
 
     // determine if the language is included in the language of another automaton
-    bool is_included_in(const tree_automaton & B) const
+    // classical antichains
+    bool is_included_in_classical_antichains(const tree_automaton & B) const
     {
         std::set<product_state> Processed, Next;
         for(int i = 0; i < DELTA.size(); i++)
@@ -510,6 +511,269 @@ public:
                 Next.insert(pP);
             }
         }
+        return true;
+    }
+
+    // compute the set of post image of a given set of product states w.r.t. a given product state
+    // this function does not work for dimension 0
+    std::set<product_state> post(const product_state & rR,
+                                 std::set<product_state> * Processed,
+                                 int d,
+                                 const tree_automaton & B) const
+    {
+        std::set<product_state> result;
+        state r = rR._1;
+        std::set<state> R = rR._2;
+        std::set<state> q_Processed;
+        std::set<product_state> safe_Processed;
+        safe_Processed.insert(rR);
+        for(int j = 0; j < d; j++)
+            for(std::set<product_state>::const_iterator it = Processed[j].begin(); it != Processed[j].end(); it++)
+                safe_Processed.insert(*it);
+        for(std::set<product_state>::const_iterator it = safe_Processed.begin(); it != safe_Processed.end(); it++)
+            q_Processed.insert(it->_1);
+        for(int i = 0; i < DELTA.size(); i++)
+        {
+            transition t = DELTA[i];
+            std::set<int> occurrences_r;
+            for(int j = 0; j < t.get_arity(); j++)
+                if(t.get_input(j) == r)
+                    occurrences_r.insert(j);
+            if(occurrences_r.size() > 0 && is_subset(t.get_inputs(), q_Processed))
+            {
+                std::set<std::vector<std::set<state> > > possible_P1_to_Pn = possible_combinations_Pi(t.get_inputs(), safe_Processed);
+                for(std::set<std::vector<std::set<state> > >::const_iterator it = possible_P1_to_Pn.begin(); it != possible_P1_to_Pn.end(); it++)
+                {
+                    std::set<int> occurrences_R;
+                    for(int j = 0; j < it->size(); j++)
+                        if((*it)[j] == R)
+                            occurrences_R.insert(j);
+                    bool have_same_index = false;
+                    for(std::set<int>::const_iterator it2 = occurrences_r.begin(); it2 != occurrences_r.end(); it2++)
+                        if(occurrences_R.find(*it2) != occurrences_R.end())
+                        {
+                            have_same_index = true;
+                            break;
+                        }
+                    if(have_same_index)
+                        result.insert(product_state(t.get_output(), B.post(t, *it)));
+                }
+            }
+        }
+        return result;
+    }
+
+    // optimization
+    int optimize(const state & p,
+                  const std::set<state> & P,
+                  int d,
+                  std::set<product_state> * Processed,
+                  std::set<product_state> & Next) const
+    {
+        bool exist = false;
+        for(int i = 0; i < d; i++)
+        {
+            product_state to_remove;
+            bool has_to_remove = false;
+            for(std::set<product_state>::const_iterator it = Processed[i].begin(); it != Processed[i].end(); it++)
+            {
+                if(p == it->_1 && is_subset(it->_2, P))
+                {
+                    exist = true;
+                    has_to_remove = true;
+                    Processed[d].insert(*it);
+                    to_remove = *it;
+                    break;
+                }
+            }
+            if(has_to_remove)
+                Processed[i].erase(to_remove);
+        }
+        for(std::set<product_state>::const_iterator it = Processed[d].begin(); it != Processed[d].end(); it++)
+        {
+            state q = it->_1;
+            std::set<state> Q = it->_2;
+            if(p == q && is_subset(Q, P))
+            {
+                exist = true;
+                break;
+            }
+        }
+        if(exist)
+            return 0;
+        for(std::set<product_state>::const_iterator it = Next.begin(); it != Next.end(); it++)
+        {
+            state q = it->_1;
+            std::set<state> Q = it->_2;
+            if(p == q && is_subset(Q, P))
+            {
+                exist = true;
+                break;
+            }
+        }
+        if(exist)
+            return 0;
+        for(int i = 0; i < d; i++)
+        {
+            std::set<product_state> to_remove;
+            for(std::set<product_state>::const_iterator it = Processed[i].begin(); it != Processed[i].end(); it++)
+            {
+                if(p == it->_1 && is_subset(P, it->_2))
+                    to_remove.insert(*it);
+            }
+            for(std::set<product_state>::const_iterator it = to_remove.begin(); it != to_remove.end(); it++)
+                Processed[i].erase(*it);
+            to_remove.clear();
+        }
+        std::set<product_state> to_remove;
+        for(std::set<product_state>::const_iterator it = Next.begin(); it != Next.end(); it++)
+        {
+            state q = it->_1;
+            std::set<state> Q = it->_2;
+            if(q == p && is_subset(P, Q))
+                to_remove.insert(*it);
+        }
+        for(std::set<product_state>::const_iterator it = to_remove.begin(); it != to_remove.end(); it++)
+            Next.erase(*it);
+        return 1;
+    }
+
+    // check inclusion by giving a dimension
+    bool is_included_in_with_dimension(const tree_automaton & B,
+                                       int d,
+                                       std::set<product_state> * Processed) const
+    {
+        std::set<product_state> Next;
+        if(d == 0)
+        {
+            for(int i = 0; i < DELTA.size(); i++)
+                if(DELTA[i].get_arity() == 0)
+                {
+                    product_state temp(DELTA[i].get_output(), B.initial_states(DELTA[i].get_name()));
+                    if(accept(temp, B))
+                        return false;
+                    Next.insert(temp);
+                }
+        }
+        else if(Processed[d - 1].size() > 0)
+        {
+            std::set<state> q_Processed;
+            std::set<std::set<state> > Q_Processed;
+            for(std::set<product_state>::const_iterator it = Processed[d - 1].begin(); it != Processed[d - 1].end(); it++)
+            {
+                q_Processed.insert(it->_1);
+                Q_Processed.insert(it->_2);
+            }
+            for(int i = 0; i < DELTA.size(); i++)
+                if(DELTA[i].get_arity() >= 2)
+                {
+                    int in_Processed_d_minus_1 = 0;
+                    bool at_least_2_in_Processed_d_minus_1 = false;
+                    for(int j = 0; j < DELTA[i].get_arity(); j++)
+                    {
+                        if(q_Processed.find(DELTA[i].get_input(j)) != q_Processed.end())
+                        {
+                            in_Processed_d_minus_1++;
+                            if(in_Processed_d_minus_1 == 2)
+                                at_least_2_in_Processed_d_minus_1 = true;
+                        }
+                        if(at_least_2_in_Processed_d_minus_1)
+                            break;
+                    }
+                    if(at_least_2_in_Processed_d_minus_1)
+                    {
+                        std::set<product_state> safe_Processed;
+                        for(int j = 0; j < d; j++)
+                            for(std::set<product_state>::const_iterator it = Processed[j].begin(); it != Processed[j].end(); it++)
+                                safe_Processed.insert(*it);
+                        std::set<std::vector<std::set<state> > > possible_P1_to_Pn = possible_combinations_Pi(DELTA[i].get_inputs(), safe_Processed);
+                        for(std::set<std::vector<std::set<state> > >::const_iterator it = possible_P1_to_Pn.begin(); it != possible_P1_to_Pn.end(); it++)
+                        {
+                            in_Processed_d_minus_1 = 0;
+                            at_least_2_in_Processed_d_minus_1 = false;
+                            for(int j = 0; j < it->size(); j++)
+                            {
+                                if(Q_Processed.find((*it)[j]) != Q_Processed.end())
+                                {
+                                    in_Processed_d_minus_1++;
+                                    if(in_Processed_d_minus_1 == 2)
+                                        at_least_2_in_Processed_d_minus_1 = true;
+                                }
+                                if(at_least_2_in_Processed_d_minus_1)
+                                    break;
+                            }
+                            if(at_least_2_in_Processed_d_minus_1)
+                            {
+                                product_state temp(DELTA[i].get_output(), B.post(DELTA[i], *it));
+                                if(accept(temp, B))
+                                    return false;
+                                Next.insert(temp);
+                            }
+                        }
+                    }
+                }
+        }
+        while(Next.size() > 0)
+        {
+            product_state rR = *(Next.begin());
+            Next.erase(rR);
+            Processed[d].insert(rR);
+            if(d == 0)
+            {
+                for(int i = 0; i < DELTA.size(); i++)
+                {
+                    transition t = DELTA[i];
+                    if(t.get_arity() != 1)
+                        continue;
+                    if(has_value(t.get_inputs(), rR._1))
+                    {
+                        state p = t.get_output();
+                        std::set<state> P;
+                        for(std::set<state>::const_iterator it = rR._2.begin(); it != rR._2.end(); it++)
+                        {
+                            state Ri = *it;
+                            for(int j = 0; j < B.DELTA.size(); j++)
+                                if(B.DELTA[j].get_name() == t.get_name() && B.DELTA[j].get_arity() == t.get_arity() && has_value(B.DELTA[j].get_inputs(), Ri))
+                                    P.insert(B.DELTA[j].get_output());
+                        }
+                        if(accept(product_state(p, P), B))
+                            return false;
+                        if(optimize(p, P, d, Processed, Next) != 0)
+                            Next.insert(product_state(p, P));
+                    }
+                }
+            }
+            else
+            {
+                std::set<product_state> rR_post = post(rR, Processed, d, B);
+                for(std::set<product_state>::const_iterator it = rR_post.begin(); it != rR_post.end(); it++)
+                {
+                    product_state pP = *it;
+                    state p = pP._1;
+                    std::set<state> P = pP._2;
+                    if(accept(pP, B))
+                        return false;
+                    if(optimize(p, P, d, Processed, Next) != 0)
+                        Next.insert(pP);
+                }
+            }
+        }
+        return true;
+    }
+
+    // determine if the language is included in the language of another automaton
+    // dimension based
+    bool is_included_in_dimension_based(const tree_automaton & B, int b) const
+    {
+        std::cout << "dimension bound = " << b << std::endl;
+        std::set<product_state> * Processed = new std::set<product_state>[b + 1];
+        for(int i = 0; i <= b; i++)
+            if(is_included_in_with_dimension(B, i, Processed) == false)
+            {
+                delete[] Processed;
+                return false;
+            }
+        delete[] Processed;
         return true;
     }
 
