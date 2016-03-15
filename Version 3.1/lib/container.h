@@ -63,4 +63,32 @@ bool is_subset(const std::vector<T> & c1, const std::vector<T> & c2)
     return true;
 }
 
+template<typename T>
+std::ostream & operator<<(std::ostream & out, const std::vector<T> & c)
+{
+    typename std::vector<T>::const_iterator it;
+    out << '(';
+    for(it = c.begin(); it != c.end(); it++)
+    {
+        out << *it << ',';
+    }
+    if(c.size() > 0)
+        out << '\b';
+    out << ')';
+}
+
+template<typename T>
+std::ostream & operator<<(std::ostream & out, const std::set<T> & c)
+{
+    typename std::set<T>::const_iterator it;
+    out << '{';
+    for(it = c.begin(); it != c.end(); it++)
+    {
+        out << *it << ',';
+    }
+    if(c.size() > 0)
+        out << '\b';
+    out << '}';
+}
+
 #endif

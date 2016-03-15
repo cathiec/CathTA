@@ -303,7 +303,10 @@ public:
     bool accept(const product_state & ps, const tree_automaton & B) const
     {
         if(accept(ps._1) && B.reject(ps._2))
+        {
+            std::cout << "Height: " << ps._1._height << std::endl;
             return true;
+        }
         else
             return false;
     }
@@ -313,8 +316,10 @@ public:
     {
         std::set<state> result;
         for(int i = 0; i < DELTA.size(); i++)
+        {
             if(DELTA[i].get_name() == s)
                 result.insert(DELTA[i].get_output());
+        }
         return result;
     }
 
@@ -332,7 +337,8 @@ public:
                 bool ok = true;
                 for(int j = 0; j < t.get_arity(); j++)
                 {
-                    if(cb[j].find(tt.get_input(j)) == cb[j].end())
+                    std::set<state>::const_iterator it_found = cb[j].find(tt.get_input(j));
+                    if(it_found == cb[j].end())
                     {
                         ok = false;
                         break;
@@ -539,7 +545,20 @@ public:
             for(int j = 0; j < t.get_arity(); j++)
                 if(t.get_input(j) == r)
                     occurrences_r.insert(j);
-            if(occurrences_r.size() == 1 && is_subset(t.get_inputs(), q_Processed))
+            bool inputs_ok = true;
+            int max_height = 0;
+            for(int j = 0; j < t.get_inputs().size(); j++)
+            {
+                std::set<state>::const_iterator it_found = q_Processed.find(t.get_input(j));
+                if(it_found == q_Processed.end())
+                {
+                    inputs_ok = false;
+                    break;
+                }
+                else if(it_found->_height > max_height)
+                    max_height = it_found->_height;
+            }
+            if(occurrences_r.size() == 1 && inputs_ok)
             {
                 std::set<std::vector<std::set<state> > > possible_P1_to_Pn = possible_combinations_Pi(t.get_inputs(), safe_Processed);
                 for(std::set<std::vector<std::set<state> > >::const_iterator it = possible_P1_to_Pn.begin(); it != possible_P1_to_Pn.end(); it++)
@@ -556,7 +575,11 @@ public:
                             break;
                         }
                     if(have_same_index)
-                        result.insert(product_state(t.get_output(), B.post(t, *it)));
+                    {
+                        state post_computed(t.get_output());
+                        post_computed._height = max_height + 1;
+                        result.insert(product_state(post_computed, B.post(t, *it)));
+                    }
                 }
             }
         }
@@ -581,7 +604,9 @@ public:
                 {
                     exist = true;
                     has_to_remove = true;
-                    Processed[d].insert(*it);
+                    product_state to_add(*it);
+                    to_add._1._height = p._height;
+                    Processed[d].insert(to_add);
                     to_remove = *it;
                     break;
                 }
@@ -683,16 +708,42 @@ public:
                     if(at_least_2_in_Processed_d_minus_1)
                     {
                         std::set<product_state> safe_Processed;
+                        std::set<state> safe_q_Processed;
                         for(int j = 0; j < d; j++)
                             for(std::set<product_state>::const_iterator it = Processed[j].begin(); it != Processed[j].end(); it++)
+                            {
                                 safe_Processed.insert(*it);
+                                safe_q_Processed.insert(it->_1);
+                            }
+                        bool inputs_ok = true;
+                        int max_height = 0;
+                        for(int j = 0; j < DELTA[i].get_arity(); j++)
+                        {
+                            std::set<state>::const_iterator it_found = safe_q_Processed.find(DELTA[i].get_input(j));
+                            if(it_found == safe_q_Processed.end())
+                            {
+                                inputs_ok = false;
+                                break;
+                            }
+                            else if(it_found->_height > max_height)
+                                max_height = it_found->_height;
+                        }
+                        if(!inputs_ok)
+                            break;
+                        state post_computed(DELTA[i].get_output());
+                        post_computed._height = max_height + 1;
                         std::set<std::vector<std::set<state> > > possible_P1_to_Pn = possible_combinations_Pi(DELTA[i].get_inputs(), safe_Processed);
+                        /*std::cout << DELTA[i].get_inputs() << std::endl;
+                        std::cout << safe_Processed << std::endl;
+                        std::cout << possible_P1_to_Pn << std::endl;*/
                         for(std::set<std::vector<std::set<state> > >::const_iterator it = possible_P1_to_Pn.begin(); it != possible_P1_to_Pn.end(); it++)
                         {
                             in_Processed_d_minus_1 = 0;
                             at_least_2_in_Processed_d_minus_1 = false;
                             for(int j = 0; j < it->size(); j++)
                             {
+                                //std::cout << Q_Processed << std::endl;
+                                //std::cout << (*it)[j] << std::endl;
                                 if(Q_Processed.find((*it)[j]) != Q_Processed.end())
                                 {
                                     in_Processed_d_minus_1++;
@@ -704,7 +755,7 @@ public:
                             }
                             if(at_least_2_in_Processed_d_minus_1)
                             {
-                                product_state temp(DELTA[i].get_output(), B.post(DELTA[i], *it));
+                                product_state temp(post_computed, B.post(DELTA[i], *it));
                                 if(accept(temp, B))
                                     return false;
                                 Next.insert(temp);
@@ -717,6 +768,7 @@ public:
         {
             product_state rR = *(Next.begin());
             Processed[d].insert(rR);
+            //std::cout << rR << std::endl;
             Next.erase(rR);
             if(d == 0)
             {
@@ -728,6 +780,7 @@ public:
                     if(has_value(t.get_inputs(), rR._1))
                     {
                         state p = t.get_output();
+                        p._height = rR._1._height + 1;
                         std::set<state> P;
                         for(std::set<state>::const_iterator it = rR._2.begin(); it != rR._2.end(); it++)
                         {
@@ -765,19 +818,23 @@ public:
     // dimension based
     bool is_included_in_dimension_based(const tree_automaton & B, int b) const
     {
-        std::cout << "dimension bound = " << b << std::endl;
         std::set<product_state> * Processed = new std::set<product_state>[b + 1];
         for(int i = 0; i <= b; i++)
         {
             if(is_included_in_with_dimension(B, i, Processed) == false)
             {
                 delete[] Processed;
+                std::cout << "Dimension = " << i << std::endl;
                 return false;
             }
-            std::cout << "Processed[" << i << "]: " << std::endl;
-            for(std::set<product_state>::const_iterator it = Processed[i].begin(); it != Processed[i].end(); it++)
-                std::cout << *it << " ";
-            std::cout << std::endl << "--------------------" << std::endl;
+            /*for(int j = 0; j <= i; j++)
+            {
+                std::cout << "Processed " << j << ": ";
+                for(std::set<product_state>::const_iterator it = Processed[j].begin(); it != Processed[j].end(); it++)
+                    std::cout << *it << " ";
+            }
+            std::cout << Processed[i] << std::endl;
+            std::cout << std::endl << i << "---" << std::endl;*/
         }
         delete[] Processed;
         return true;

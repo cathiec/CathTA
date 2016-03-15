@@ -1,7 +1,11 @@
 Ops 
+
 Automaton B
+
 States 
+
 Final States qF 
+
 Transitions
 a -> q
 f(q,q) -> q

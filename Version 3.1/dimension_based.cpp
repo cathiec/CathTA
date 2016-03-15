@@ -1,15 +1,18 @@
 #include "TA.h"
 #include <time.h>
 
+using namespace std;
+
 int main(int argc, char ** argv)
 {
     clock_t start, end;
+    tree_automaton TA1(argv[1]), TA2(argv[2]);
     start = clock();
-    std::string command = "lib/hkc -incl ";
-    command += argv[1];
-    command += ' ';
-    command += argv[2];
-    system(command.c_str());
+    bool result = TA1.is_included_in_dimension_based(TA2, atoi(argv[3]));
     end = clock();
+    if(result)
+        cout << "YES" << endl;
+    else
+        cout << "NO" << endl;  
     std::cout << "\t|\t-> Time used: " << ((double)(end - start)) / ((double)CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 }

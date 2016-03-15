@@ -3,13 +3,8 @@
 
 int main(int argc, char ** argv)
 {
-    clock_t start, end;
-    basic_tree_automaton A(argv[1]), B(argv[2]);
-    start = clock();
-    if(A.is_included_in(B))
-        std::cout << "YES" << std::endl;
-    else
-        std::cout << "NO" << std::endl;
-    end = clock();
-    std::cout << "\t|\t-> Time used: " << ((double)(end - start)) / ((double)CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+    basic_tree_automaton A(argv[1]);
+    int x = A.max_dimension();
+    std::cout << x << std::endl;
+    timbuk(A.transform_into_words_automaton(atoi(argv[2]))).save_in_file("ABCDE.FG");
 }
