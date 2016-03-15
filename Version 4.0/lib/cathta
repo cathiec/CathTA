@@ -1,0 +1,7 @@
+#ifndef _cathta_h
+#define _cathta_h
+
+#include "tree_automaton.h"
+#include "timer.h"
+
+#endif
