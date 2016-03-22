@@ -459,6 +459,7 @@ public:
         while(Next.size() != 0)
         {
             product_state rR = *(Next.begin());
+            std::cout << rR._1 << std::endl;
             Next.erase(rR);
             Processed.insert(rR);
             std::set<product_state> rR_post = post(rR, Processed, B);
@@ -768,7 +769,7 @@ public:
         {
             product_state rR = *(Next.begin());
             Processed[d].insert(rR);
-            //std::cout << rR << std::endl;
+            std::cout << rR._1 << std::endl;
             Next.erase(rR);
             if(d == 0)
             {

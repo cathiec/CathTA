@@ -1,0 +1,69 @@
+Ops EPSILON:0 bot1:1 red:1 black:1 bot2:1 bot0:1 
+
+Automaton A
+
+States q1 q2 q3 q4 q5 q6 q7 q8 q9 q10 q11 q12 q13 q14 q15 q16 q17 q18 q19 q20 q21 q22 q23 q24 q25 q26 q27 q28 q29 q30 q31 q32 q33 q34 q35 q36 q37 q38 q39 q40 q41 q42 q43 q44 q45 q46 
+
+Final States q2 
+
+Transitions
+EPSILON -> q1
+bot1(q3) -> q2
+red(q4) -> q2
+red(q5) -> q2
+red(q6) -> q2
+black(q7) -> q6
+black(q8) -> q7
+bot2(q9) -> q7
+bot0(q10) -> q9
+bot0(q8) -> q10
+black(q11) -> q8
+bot2(q12) -> q8
+bot0(q13) -> q12
+bot0(q11) -> q13
+bot1(q2) -> q11
+bot1(q14) -> q5
+bot1(q15) -> q14
+red(q16) -> q14
+red(q17) -> q14
+red(q18) -> q14
+black(q19) -> q18
+black(q20) -> q19
+black(q5) -> q20
+bot2(q21) -> q20
+bot0(q22) -> q21
+bot0(q5) -> q22
+bot1(q23) -> q17
+bot1(q24) -> q23
+red(q25) -> q23
+red(q26) -> q23
+red(q27) -> q23
+bot1(q28) -> q26
+bot1(q29) -> q28
+black(q25) -> q24
+black(q30) -> q16
+black(q31) -> q30
+black(q4) -> q31
+bot2(q32) -> q31
+bot0(q33) -> q32
+bot0(q4) -> q33
+black(q16) -> q15
+black(q34) -> q4
+black(q35) -> q34
+bot2(q36) -> q34
+bot0(q37) -> q36
+bot0(q35) -> q37
+black(q38) -> q35
+bot2(q39) -> q35
+bot0(q40) -> q39
+bot0(q38) -> q40
+black(q41) -> q38
+black(q42) -> q41
+bot2(q43) -> q41
+bot0(q44) -> q43
+bot0(q42) -> q44
+black(q1) -> q42
+bot2(q45) -> q42
+bot0(q46) -> q45
+bot0(q1) -> q46
+black(q4) -> q3

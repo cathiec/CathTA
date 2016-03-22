@@ -1,0 +1,11 @@
+Ops
+Automaton Ax
+States
+Final States z 
+Transitions
+a -> x
+b -> k1
+b -> k2
+b -> k3
+g(y,y) -> z
+f(x,k1,k2,k3) -> y

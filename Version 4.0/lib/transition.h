@@ -19,6 +19,10 @@ functions:
     transition()
     {}
 
+    transition(const transition & t)
+        :symbol(t.symbol), input(t.input), output(t.output)
+    {}
+
     ~transition()
     {}
 
@@ -31,8 +35,7 @@ functions:
 
     str to_string() const
     {
-        str result = "";
-        result += symbol;
+        str result = symbol;
         if(input.size() > 0)
         {
             result += '(';
